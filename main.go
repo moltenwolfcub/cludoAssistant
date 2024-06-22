@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	who := cludo.NewQuestion(
+	who := cludo.NewQuestionCategory(
 		cludo.NewOption("Green"),
 		cludo.NewOption("Mustard"),
 		cludo.NewOption("Peacock"),

@@ -7,7 +7,7 @@ import (
 )
 
 func GenSampleQuestionCategory() cludo.QuestionCategory {
-	return cludo.NewQuestion(
+	return cludo.NewQuestionCategory(
 		cludo.NewOption("Zero"),
 		cludo.NewOption("One"),
 		cludo.NewOption("two"),

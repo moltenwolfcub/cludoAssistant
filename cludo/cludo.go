@@ -20,7 +20,7 @@ type QuestionCategory struct {
 	Options []Option
 }
 
-func NewQuestion(options ...Option) QuestionCategory {
+func NewQuestionCategory(options ...Option) QuestionCategory {
 	return QuestionCategory{
 		Options: options,
 	}
@@ -34,4 +34,52 @@ func (q QuestionCategory) HasKnownSolution() bool {
 		}
 	}
 	return len(available) == 1
+}
+
+type Player string
+
+type Game struct {
+	who   QuestionCategory
+	what  QuestionCategory
+	where QuestionCategory
+
+	otherPlayers []Player
+}
+
+func NewDefaultGame(otherPlayers []string) Game {
+	g := Game{
+		who: NewQuestionCategory(
+			NewOption("green"),
+			NewOption("mustard"),
+			NewOption("peacock"),
+			NewOption("plum"),
+			NewOption("scarlet"),
+			NewOption("white"),
+		),
+		what: NewQuestionCategory(
+			NewOption("wrench"),
+			NewOption("candlestick"),
+			NewOption("dagger"),
+			NewOption("pistol"),
+			NewOption("lead pipe"),
+			NewOption("rope"),
+		),
+		where: NewQuestionCategory(
+			NewOption("bathroom"),
+			NewOption("study"),
+			NewOption("dining room"),
+			NewOption("games room"),
+			NewOption("garage"),
+			NewOption("bedroom"),
+			NewOption("living room"),
+			NewOption("kitchen"),
+			NewOption("courtyard"),
+		),
+	}
+
+	for _, p := range otherPlayers {
+		g.otherPlayers = append(g.otherPlayers, Player(p))
+	}
+
+	return g
 }
