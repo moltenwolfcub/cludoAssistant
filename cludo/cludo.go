@@ -12,12 +12,20 @@ func NewOption(name string) Option {
 	}
 }
 
+func (o *Option) SetFound() {
+	o.found = true
+}
+
 type Question struct {
-	options []Option
+	Options []Option
 }
 
 func NewQuestion(options ...Option) Question {
 	return Question{
-		options: options,
+		Options: options,
 	}
+}
+
+func (q Question) HasKnownSolution() bool {
+	return false
 }
