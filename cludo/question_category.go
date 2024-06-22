@@ -16,17 +16,17 @@ func (o *Option) SetFound() {
 	o.found = true
 }
 
-type Question struct {
+type QuestionCategory struct {
 	Options []Option
 }
 
-func NewQuestion(options ...Option) Question {
-	return Question{
+func NewQuestion(options ...Option) QuestionCategory {
+	return QuestionCategory{
 		Options: options,
 	}
 }
 
-func (q Question) HasKnownSolution() bool {
+func (q QuestionCategory) HasKnownSolution() bool {
 	available := []Option{}
 	for _, o := range q.Options {
 		if !o.found {

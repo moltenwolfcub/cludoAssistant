@@ -6,7 +6,7 @@ import (
 	"github.com/moltenwolfcub/cludoAssistant/cludo"
 )
 
-func GenSampleQuestion() cludo.Question {
+func GenSampleQuestionCategory() cludo.QuestionCategory {
 	return cludo.NewQuestion(
 		cludo.NewOption("Zero"),
 		cludo.NewOption("One"),
@@ -16,7 +16,7 @@ func GenSampleQuestion() cludo.Question {
 }
 
 func TestHasKnownSolutionWithSolution(t *testing.T) {
-	q := GenSampleQuestion()
+	q := GenSampleQuestionCategory()
 
 	q.Options[0].SetFound()
 	q.Options[1].SetFound()
@@ -28,7 +28,7 @@ func TestHasKnownSolutionWithSolution(t *testing.T) {
 }
 
 func TestHasKnownSolutionWithoutSolution(t *testing.T) {
-	q := GenSampleQuestion()
+	q := GenSampleQuestionCategory()
 
 	q.Options[0].SetFound()
 	q.Options[1].SetFound()
@@ -39,7 +39,7 @@ func TestHasKnownSolutionWithoutSolution(t *testing.T) {
 }
 
 func TestHasKnownSolutionWithoutOptions(t *testing.T) {
-	q := GenSampleQuestion()
+	q := GenSampleQuestionCategory()
 
 	q.Options[0].SetFound()
 	q.Options[1].SetFound()
