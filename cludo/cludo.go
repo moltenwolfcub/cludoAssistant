@@ -27,5 +27,11 @@ func NewQuestion(options ...Option) Question {
 }
 
 func (q Question) HasKnownSolution() bool {
-	return false
+	available := []Option{}
+	for _, o := range q.Options {
+		if !o.found {
+			available = append(available, o)
+		}
+	}
+	return len(available) == 1
 }
