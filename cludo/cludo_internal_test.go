@@ -4,6 +4,17 @@ import (
 	"testing"
 )
 
+func lookupOption(t *testing.T, category QuestionCategory, optionName string) (found *Option) {
+	for _, o := range category.Options {
+		if o.name == optionName {
+			found = o
+			return
+		}
+	}
+	t.Errorf("Couldn't find option %s", optionName)
+	return nil
+}
+
 func GenSampleGame() Game {
 	players := []string{
 		"alice",
@@ -27,35 +38,17 @@ func TestTurnWhoAnswerUpdatesFound(t *testing.T) {
 
 	game.DoTurn(question)
 
-	var whiteOption *Option
-	for _, o := range game.whoCategory.Options {
-		if o.name == "white" {
-			whiteOption = o
-			break
-		}
-	}
+	whiteOption := lookupOption(t, game.whoCategory, "white")
 	if !whiteOption.found {
 		t.Error("Game.DoTurn() Was shown a who card but didn't update the who option")
 	}
 
-	var pistolOption *Option
-	for _, o := range game.whatCategory.Options {
-		if o.name == "pistol" {
-			pistolOption = o
-			break
-		}
-	}
+	pistolOption := lookupOption(t, game.whatCategory, "pistol")
 	if pistolOption.found {
 		t.Error("Game.DoTurn() Was shown a who card but the what option was set to found")
 	}
 
-	var bedroomOption *Option
-	for _, o := range game.whereCategory.Options {
-		if o.name == "bedroom" {
-			bedroomOption = o
-			break
-		}
-	}
+	bedroomOption := lookupOption(t, game.whereCategory, "bedroom")
 	if bedroomOption.found {
 		t.Error("Game.DoTurn() Was shown a who card but the where option was set to found")
 	}
@@ -75,35 +68,17 @@ func TestTurnWhatAnswerUpdatesFound(t *testing.T) {
 
 	game.DoTurn(question)
 
-	var pistolOption *Option
-	for _, o := range game.whatCategory.Options {
-		if o.name == "pistol" {
-			pistolOption = o
-			break
-		}
-	}
+	pistolOption := lookupOption(t, game.whatCategory, "pistol")
 	if !pistolOption.found {
 		t.Error("Game.DoTurn() Was shown a what card but didn't update the what option")
 	}
 
-	var whiteOption *Option
-	for _, o := range game.whoCategory.Options {
-		if o.name == "white" {
-			whiteOption = o
-			break
-		}
-	}
+	whiteOption := lookupOption(t, game.whoCategory, "white")
 	if whiteOption.found {
 		t.Error("Game.DoTurn() Was shown a what card but the who option was set to found")
 	}
 
-	var bedroomOption *Option
-	for _, o := range game.whereCategory.Options {
-		if o.name == "bedroom" {
-			bedroomOption = o
-			break
-		}
-	}
+	bedroomOption := lookupOption(t, game.whereCategory, "bedroom")
 	if bedroomOption.found {
 		t.Error("Game.DoTurn() Was shown a what card but the where option was set to found")
 	}
@@ -123,35 +98,17 @@ func TestTurnWhereAnswerUpdatesFound(t *testing.T) {
 
 	game.DoTurn(question)
 
-	var bedroomOption *Option
-	for _, o := range game.whereCategory.Options {
-		if o.name == "bedroom" {
-			bedroomOption = o
-			break
-		}
-	}
+	bedroomOption := lookupOption(t, game.whereCategory, "bedroom")
 	if !bedroomOption.found {
 		t.Error("Game.DoTurn() Was shown a where card but didn't update the where option")
 	}
 
-	var whiteOption *Option
-	for _, o := range game.whoCategory.Options {
-		if o.name == "white" {
-			whiteOption = o
-			break
-		}
-	}
+	whiteOption := lookupOption(t, game.whoCategory, "white")
 	if whiteOption.found {
 		t.Error("Game.DoTurn() Was shown a where card but the who option was set to found")
 	}
 
-	var pistolOption *Option
-	for _, o := range game.whatCategory.Options {
-		if o.name == "pistol" {
-			pistolOption = o
-			break
-		}
-	}
+	pistolOption := lookupOption(t, game.whatCategory, "pistol")
 	if pistolOption.found {
 		t.Error("Game.DoTurn() Was shown a where card but the what option was set to found")
 	}
@@ -171,13 +128,7 @@ func TestTurnWhoAnswerPosessor(t *testing.T) {
 
 	game.DoTurn(question)
 
-	var whiteOption *Option
-	for _, o := range game.whoCategory.Options {
-		if o.name == "white" {
-			whiteOption = o
-			break
-		}
-	}
+	whiteOption := lookupOption(t, game.whoCategory, "white")
 	if whiteOption.possessor != "alice" {
 		t.Error("Game.DoTurn() Was shown a who card by alice but she wasn't marked as the owner of the card.")
 	}
@@ -197,13 +148,7 @@ func TestTurnWhatAnswerPosessor(t *testing.T) {
 
 	game.DoTurn(question)
 
-	var pistolOption *Option
-	for _, o := range game.whatCategory.Options {
-		if o.name == "pistol" {
-			pistolOption = o
-			break
-		}
-	}
+	pistolOption := lookupOption(t, game.whatCategory, "pistol")
 	if pistolOption.possessor != "alice" {
 		t.Error("Game.DoTurn() Was shown a what card by alice but she wasn't marked as the owner of the card.")
 	}
@@ -223,13 +168,7 @@ func TestTurnWhereAnswerPosessor(t *testing.T) {
 
 	game.DoTurn(question)
 
-	var bedroomOption *Option
-	for _, o := range game.whereCategory.Options {
-		if o.name == "bedroom" {
-			bedroomOption = o
-			break
-		}
-	}
+	bedroomOption := lookupOption(t, game.whereCategory, "bedroom")
 	if bedroomOption.possessor != "alice" {
 		t.Error("Game.DoTurn() Was shown a where card by alice but she wasn't marked as the owner of the card.")
 	}
@@ -240,13 +179,7 @@ func TestStartingHandOneOption(t *testing.T) {
 	game.AddStartingHand(
 		[]*Option{NewOption("lead pipe")},
 	)
-	var pipeOption *Option
-	for _, o := range game.whatCategory.Options {
-		if o.name == "lead pipe" {
-			pipeOption = o
-			break
-		}
-	}
+	pipeOption := lookupOption(t, game.whatCategory, "lead pipe")
 
 	if !pipeOption.found {
 		t.Error("Game.AddStartingHand() Started with 1 card but it wasn't marked as found.")
