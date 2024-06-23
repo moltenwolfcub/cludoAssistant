@@ -7,13 +7,39 @@ import (
 )
 
 func main() {
-	who := cludo.NewQuestionCategory(
-		cludo.NewOption("Green"),
-		cludo.NewOption("Mustard"),
-		cludo.NewOption("Peacock"),
-		cludo.NewOption("Plum"),
-		cludo.NewOption("Scarlet"),
-		cludo.NewOption("White"),
+	game := cludo.NewDefaultGame([]string{
+		"alice",
+		"bob",
+		"charlie",
+	})
+	game.AddStartingHand(
+		[]*cludo.Option{
+			cludo.NewOption("peacock"),
+			cludo.NewOption("white"),
+			cludo.NewOption("rope"),
+			cludo.NewOption("bathroom"),
+		},
 	)
-	fmt.Println(who)
+
+	q := cludo.NewQuestion(
+		cludo.NewOption("scarlet"),
+		cludo.NewOption("dagger"),
+		cludo.NewOption("study"),
+		"THIS",
+		"alice",
+	)
+	q.SetAnswer(cludo.WhoAnswer)
+	game.DoTurn(q)
+
+	q = cludo.NewQuestion(
+		cludo.NewOption("green"),
+		cludo.NewOption("lead pipe"),
+		cludo.NewOption("games room"),
+		"THIS",
+		"bob",
+	)
+	q.SetAnswer(cludo.WhoAnswer)
+	game.DoTurn(q)
+
+	fmt.Println(game)
 }

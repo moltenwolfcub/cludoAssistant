@@ -2,7 +2,9 @@ package cludo
 
 import (
 	"fmt"
+	"math"
 	"slices"
+	"strings"
 )
 
 type Option struct {
@@ -130,6 +132,7 @@ func NewDefaultGame(otherPlayers []string) Game {
 		),
 	}
 
+	g.players = append(g.players, "THIS")
 	for _, other := range otherPlayers {
 		p := Player(other)
 
@@ -142,9 +145,128 @@ func NewDefaultGame(otherPlayers []string) Game {
 
 		g.players = append(g.players, p)
 	}
-	g.players = append(g.players, "THIS")
 
 	return g
+}
+
+func (g Game) String() string {
+	// setup
+
+	longestOptionLen := 0
+	for _, o := range g.whoCategory.Options {
+		if l := len(o.name); l > longestOptionLen {
+			longestOptionLen = l
+		}
+	}
+	for _, o := range g.whatCategory.Options {
+		if l := len(o.name); l > longestOptionLen {
+			longestOptionLen = l
+		}
+	}
+	for _, o := range g.whereCategory.Options {
+		if l := len(o.name); l > longestOptionLen {
+			longestOptionLen = l
+		}
+	}
+
+	// player list setup
+	playerList := "|  " + strings.Repeat(" ", longestOptionLen) + "| you |"
+	columnSpacing := []int{longestOptionLen, 3}
+
+	for _, player := range g.players {
+		if player == "THIS" {
+			continue
+		}
+		playerList += fmt.Sprintf(" %v |", player)
+		columnSpacing = append(columnSpacing, len(player))
+	}
+
+	allColumnWidth := len(playerList)
+
+	// title
+	left := int(math.Floor((float64(allColumnWidth) - 6) / 2))
+	right := int(math.Ceil((float64(allColumnWidth) - 6) / 2))
+	str := strings.Repeat("=", left) + " GAME " + strings.Repeat("=", right) + "\n"
+
+	// player list
+	str += playerList + "\n"
+
+	// WHO
+	str += "WHO " + strings.Repeat("=", allColumnWidth-4) + "\n"
+	for _, option := range g.whoCategory.Options {
+		str += fmt.Sprintf("| %s%s |", option.name, strings.Repeat(" ", columnSpacing[0]-len(option.name)))
+
+		for i, width := range columnSpacing {
+			if i == 0 {
+				continue
+			}
+
+			str += " "
+
+			if option.possessor == g.players[i-1] {
+				str += "✓"
+			} else {
+				str += " "
+			}
+
+			str += strings.Repeat(" ", width)
+			str += "|"
+		}
+
+		str += "\n"
+	}
+
+	// WHAT
+	str += "WHAT " + strings.Repeat("=", allColumnWidth-5) + "\n"
+	for _, option := range g.whatCategory.Options {
+		str += fmt.Sprintf("| %s%s |", option.name, strings.Repeat(" ", columnSpacing[0]-len(option.name)))
+
+		for i, width := range columnSpacing {
+			if i == 0 {
+				continue
+			}
+
+			str += " "
+
+			if option.possessor == g.players[i-1] {
+				str += "✓"
+			} else {
+				str += " "
+			}
+
+			str += strings.Repeat(" ", width)
+			str += "|"
+		}
+
+		str += "\n"
+	}
+
+	// WHERE
+	str += "WHERE " + strings.Repeat("=", allColumnWidth-6) + "\n"
+	for _, option := range g.whereCategory.Options {
+		str += fmt.Sprintf("| %s%s |", option.name, strings.Repeat(" ", columnSpacing[0]-len(option.name)))
+
+		for i, width := range columnSpacing {
+			if i == 0 {
+				continue
+			}
+
+			str += " "
+
+			if option.possessor == g.players[i-1] {
+				str += "✓"
+			} else {
+				str += " "
+			}
+
+			str += strings.Repeat(" ", width)
+			str += "|"
+		}
+
+		str += "\n"
+	}
+
+	return str
 }
 
 func (g *Game) AddStartingHand(hand []*Option) {
