@@ -19,8 +19,9 @@ func NewOption(name string) *Option {
 	}
 }
 
-func (o *Option) SetFound() {
+func (o *Option) SetFound(possessor Player) {
 	o.found = true
+	o.possessor = possessor
 }
 
 type QuestionCategory struct {
@@ -43,10 +44,10 @@ func (q QuestionCategory) HasKnownSolution() bool {
 	return available == 1
 }
 
-func (q *QuestionCategory) FoundOption(option *Option) {
+func (q *QuestionCategory) FoundOption(option *Option, possessor Player) {
 	for _, o := range q.Options {
 		if option.name == o.name {
-			o.SetFound()
+			o.SetFound(possessor)
 			return
 		}
 	}
@@ -174,10 +175,10 @@ func (g *Game) DoTurn(question Question) {
 	case NoAnswer:
 		fmt.Println("Not Implemented")
 	case WhoAnswer:
-		g.whoCategory.FoundOption(question.whoPart)
+		g.whoCategory.FoundOption(question.whoPart, question.answerer)
 	case WhatAnswer:
-		g.whatCategory.FoundOption(question.whatPart)
+		g.whatCategory.FoundOption(question.whatPart, question.answerer)
 	case WhereAnswer:
-		g.whereCategory.FoundOption(question.wherePart)
+		g.whereCategory.FoundOption(question.wherePart, question.answerer)
 	}
 }

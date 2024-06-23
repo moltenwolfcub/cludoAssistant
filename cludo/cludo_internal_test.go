@@ -156,3 +156,81 @@ func TestTurnWhereAnswerUpdatesFound(t *testing.T) {
 		t.Error("Game.DoTurn() Was shown a where card but the what option was set to found")
 	}
 }
+
+func TestTurnWhoAnswerPosessor(t *testing.T) {
+	game := GenSampleGame()
+
+	question := NewQuestion(
+		NewOption("white"),
+		NewOption("pistol"),
+		NewOption("bedroom"),
+		"THIS",
+		"alice",
+	)
+	question.SetAnswer(WhoAnswer)
+
+	game.DoTurn(question)
+
+	var whiteOption *Option
+	for _, o := range game.whoCategory.Options {
+		if o.name == "white" {
+			whiteOption = o
+			break
+		}
+	}
+	if whiteOption.possessor != "alice" {
+		t.Error("Game.DoTurn() Was shown a who card by alice but she wasn't marked as the owner of the card.")
+	}
+}
+
+func TestTurnWhatAnswerPosessor(t *testing.T) {
+	game := GenSampleGame()
+
+	question := NewQuestion(
+		NewOption("white"),
+		NewOption("pistol"),
+		NewOption("bedroom"),
+		"THIS",
+		"alice",
+	)
+	question.SetAnswer(WhatAnswer)
+
+	game.DoTurn(question)
+
+	var pistolOption *Option
+	for _, o := range game.whatCategory.Options {
+		if o.name == "pistol" {
+			pistolOption = o
+			break
+		}
+	}
+	if pistolOption.possessor != "alice" {
+		t.Error("Game.DoTurn() Was shown a what card by alice but she wasn't marked as the owner of the card.")
+	}
+}
+
+func TestTurnWhereAnswerPosessor(t *testing.T) {
+	game := GenSampleGame()
+
+	question := NewQuestion(
+		NewOption("white"),
+		NewOption("pistol"),
+		NewOption("bedroom"),
+		"THIS",
+		"alice",
+	)
+	question.SetAnswer(WhereAnswer)
+
+	game.DoTurn(question)
+
+	var bedroomOption *Option
+	for _, o := range game.whereCategory.Options {
+		if o.name == "bedroom" {
+			bedroomOption = o
+			break
+		}
+	}
+	if bedroomOption.possessor != "alice" {
+		t.Error("Game.DoTurn() Was shown a where card by alice but she wasn't marked as the owner of the card.")
+	}
+}

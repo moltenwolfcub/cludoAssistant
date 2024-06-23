@@ -18,9 +18,9 @@ func GenSampleQuestionCategory() cludo.QuestionCategory {
 func TestHasKnownSolutionWithSolution(t *testing.T) {
 	q := GenSampleQuestionCategory()
 
-	q.Options[0].SetFound()
-	q.Options[1].SetFound()
-	q.Options[2].SetFound()
+	q.Options[0].SetFound("")
+	q.Options[1].SetFound("")
+	q.Options[2].SetFound("")
 
 	if !q.HasKnownSolution() {
 		t.Error("Question.HasKnownSolution() Couldn't find solution when there was one present.")
@@ -30,8 +30,8 @@ func TestHasKnownSolutionWithSolution(t *testing.T) {
 func TestHasKnownSolutionWithoutSolution(t *testing.T) {
 	q := GenSampleQuestionCategory()
 
-	q.Options[0].SetFound()
-	q.Options[1].SetFound()
+	q.Options[0].SetFound("")
+	q.Options[1].SetFound("")
 
 	if q.HasKnownSolution() {
 		t.Error("Question.HasKnownSolution() Found a solution when there were multiple options.")
@@ -41,10 +41,10 @@ func TestHasKnownSolutionWithoutSolution(t *testing.T) {
 func TestHasKnownSolutionWithoutOptions(t *testing.T) {
 	q := GenSampleQuestionCategory()
 
-	q.Options[0].SetFound()
-	q.Options[1].SetFound()
-	q.Options[2].SetFound()
-	q.Options[3].SetFound()
+	q.Options[0].SetFound("")
+	q.Options[1].SetFound("")
+	q.Options[2].SetFound("")
+	q.Options[3].SetFound("")
 
 	if q.HasKnownSolution() {
 		t.Error("Question.HasKnownSolution() Found a solution when there were no options left.")
