@@ -34,13 +34,13 @@ func NewQuestionCategory(options ...*Option) QuestionCategory {
 }
 
 func (q QuestionCategory) HasKnownSolution() bool {
-	available := []*Option{}
+	var available int
 	for _, o := range q.Options {
 		if !o.found {
-			available = append(available, o)
+			available++
 		}
 	}
-	return len(available) == 1
+	return available == 1
 }
 
 func (q *QuestionCategory) FoundOption(option *Option) {
