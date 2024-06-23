@@ -240,3 +240,27 @@ func TestTurnNonPossessor(t *testing.T) {
 		t.Error("Game.DoTurn() Alice couldn't answer the question but she wasn't marked as not having the location")
 	}
 }
+
+func TestUnkownAnswerWith2SimpleKnown(t *testing.T) {
+	game := GenSampleGame()
+	game.AddStartingHand([]*Card{
+		NewCard("green"),
+		NewCard("dagger"),
+	})
+
+	question := NewQuestion(
+		NewCard("green"),
+		NewCard("dagger"),
+		NewCard("bedroom"),
+		"bob",
+		"alice",
+	)
+	question.SetAnswer(UnknownAnswer)
+
+	game.DoTurn(question)
+
+	whereCard := lookupCard(t, game.whereCategory, "bedroom")
+	if whereCard.possessor != "alice" {
+		t.Error("Game.analyseUnknownAnswer() I had 2 cards and alice showed a card when asked about them but the 3rd wasn't marked as hers.")
+	}
+}

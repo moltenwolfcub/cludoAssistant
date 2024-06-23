@@ -69,10 +69,10 @@ func (q *QuestionCategory) FoundCard(card *Card, possessor Player) (success bool
 type Answer int
 
 const (
-	WhoAnswer Answer = iota
+	UnknownAnswer Answer = iota
+	WhoAnswer
 	WhatAnswer
 	WhereAnswer
-	UnknownAnswer
 	NoAnswer
 )
 
@@ -341,7 +341,7 @@ func (g *Game) DoTurn(question Question) {
 
 	switch question.answer {
 	case UnknownAnswer:
-		fmt.Println("Not Implemented")
+		g.analyseUnknownAnswer(question)
 	case NoAnswer:
 		for _, c := range g.whoCategory.Cards {
 			if c.name == question.whoPart.name {
@@ -367,5 +367,40 @@ func (g *Game) DoTurn(question Question) {
 		g.whatCategory.FoundCard(question.whatPart, question.answerer)
 	case WhereAnswer:
 		g.whereCategory.FoundCard(question.wherePart, question.answerer)
+	}
+}
+
+func (g *Game) analyseUnknownAnswer(question Question) {
+	// simple 2 knowns from question
+	var gameWho, gameWhat, gameWhere *Card
+	for _, c := range g.whoCategory.Cards {
+		if c.name == question.whoPart.name {
+			gameWho = c
+			break
+		}
+	}
+	for _, c := range g.whatCategory.Cards {
+		if c.name == question.whatPart.name {
+			gameWhat = c
+			break
+		}
+	}
+	for _, c := range g.whereCategory.Cards {
+		if c.name == question.wherePart.name {
+			gameWhere = c
+			break
+		}
+	}
+	// i know the card isn't owned by the answerer
+	whoFound := gameWho.IsFound() && gameWho.possessor != question.answerer
+	whatFound := gameWhat.IsFound() && gameWhat.possessor != question.answerer
+	whereFound := gameWhere.IsFound() && gameWhere.possessor != question.answerer
+
+	if whoFound && whatFound {
+		gameWhere.SetFound(question.answerer)
+	} else if whoFound && whereFound {
+		gameWhat.SetFound(question.answerer)
+	} else if whatFound && whereFound {
+		gameWho.SetFound(question.answerer)
 	}
 }
