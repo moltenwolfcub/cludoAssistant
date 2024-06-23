@@ -6,9 +6,9 @@ import (
 )
 
 type Option struct {
-	name  string
-	found bool
+	name string
 
+	found     bool
 	possessor Player
 }
 
@@ -44,13 +44,14 @@ func (q QuestionCategory) HasKnownSolution() bool {
 	return available == 1
 }
 
-func (q *QuestionCategory) FoundOption(option *Option, possessor Player) {
+func (q *QuestionCategory) FoundOption(option *Option, possessor Player) (success bool) {
 	for _, o := range q.Options {
 		if option.name == o.name {
 			o.SetFound(possessor)
-			return
+			return true
 		}
 	}
+	return false
 }
 
 type Answer int
@@ -144,6 +145,21 @@ func NewDefaultGame(otherPlayers []string) Game {
 	g.players = append(g.players, "THIS")
 
 	return g
+}
+
+func (g *Game) AddStartingHand(hand []*Option) {
+	for _, o := range hand {
+		if g.whoCategory.FoundOption(o, "THIS") {
+			continue
+		}
+		if g.whatCategory.FoundOption(o, "THIS") {
+			continue
+		}
+		if g.whereCategory.FoundOption(o, "THIS") {
+			continue
+		}
+		panic(fmt.Sprintf("Can't have card `%v` in hand because it's not in the game.", o.name))
+	}
 }
 
 func (g Game) EnsureValidQuestion(question Question) bool {

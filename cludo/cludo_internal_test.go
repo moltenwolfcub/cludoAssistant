@@ -234,3 +234,24 @@ func TestTurnWhereAnswerPosessor(t *testing.T) {
 		t.Error("Game.DoTurn() Was shown a where card by alice but she wasn't marked as the owner of the card.")
 	}
 }
+
+func TestStartingHandOneOption(t *testing.T) {
+	game := GenSampleGame()
+	game.AddStartingHand(
+		[]*Option{NewOption("lead pipe")},
+	)
+	var pipeOption *Option
+	for _, o := range game.whatCategory.Options {
+		if o.name == "lead pipe" {
+			pipeOption = o
+			break
+		}
+	}
+
+	if !pipeOption.found {
+		t.Error("Game.AddStartingHand() Started with 1 card but it wasn't marked as found.")
+	}
+	if pipeOption.possessor != "THIS" {
+		t.Error("Game.AddStartingHand() Started with 1 card but its owner wasn't THIS.")
+	}
+}
