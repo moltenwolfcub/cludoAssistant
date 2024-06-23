@@ -126,8 +126,24 @@ func NewDefaultGame(otherPlayers []string) Game {
 	return g
 }
 
-func (g Game) EnsureValidQuestion(q Question) bool {
-	return false
+func (g Game) EnsureValidQuestion(question Question) bool {
+	if !slices.ContainsFunc(g.whoCategory.Options, func(o Option) bool { return o.name == question.whoPart.name }) {
+		return false
+	}
+	if !slices.ContainsFunc(g.whatCategory.Options, func(o Option) bool { return o.name == question.whatPart.name }) {
+		return false
+	}
+	if !slices.ContainsFunc(g.whereCategory.Options, func(o Option) bool { return o.name == question.wherePart.name }) {
+		return false
+	}
+	if !slices.Contains(g.players, question.asker) {
+		return false
+	}
+	if !slices.Contains(g.players, question.answerer) {
+		return false
+	}
+
+	return true
 }
 
 func (g Game) DoTurn() {
