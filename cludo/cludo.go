@@ -58,6 +58,7 @@ const (
 	WhoAnswer Answer = iota
 	WhatAnswer
 	WhereAnswer
+	UnknownAnswer
 	NoAnswer
 )
 
@@ -168,6 +169,8 @@ func (g *Game) DoTurn(question Question) {
 	g.EnsureValidQuestion(question)
 
 	switch question.answer {
+	case UnknownAnswer:
+		fmt.Println("Not Implemented")
 	case NoAnswer:
 		fmt.Println("Not Implemented")
 	case WhoAnswer:
