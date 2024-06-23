@@ -241,7 +241,7 @@ func TestTurnNonPossessor(t *testing.T) {
 	}
 }
 
-func TestUnkownAnswerWith2SimpleKnown(t *testing.T) {
+func TestUnkownAnswerWith2SimpleSelfKnown(t *testing.T) {
 	game := GenSampleGame()
 	game.AddStartingHand([]*Card{
 		NewCard("green"),
@@ -262,5 +262,76 @@ func TestUnkownAnswerWith2SimpleKnown(t *testing.T) {
 	whereCard := lookupCard(t, game.whereCategory, "bedroom")
 	if whereCard.possessor != "alice" {
 		t.Error("Game.analyseUnknownAnswer() I had 2 cards and alice showed a card when asked about them but the 3rd wasn't marked as hers.")
+	}
+}
+
+func TestUnkownAnswerWith2SimpleOthersKnown(t *testing.T) {
+	game := GenSampleGame()
+
+	question := NewQuestion(
+		NewCard("green"),
+		NewCard("dagger"),
+		NewCard("bedroom"),
+		"THIS",
+		"alice",
+	)
+	question.SetAnswer(WhoAnswer)
+	game.DoTurn(question)
+
+	question = NewQuestion(
+		NewCard("green"),
+		NewCard("dagger"),
+		NewCard("bedroom"),
+		"THIS",
+		"bob",
+	)
+	question.SetAnswer(WhatAnswer)
+	game.DoTurn(question)
+
+	question = NewQuestion(
+		NewCard("green"),
+		NewCard("dagger"),
+		NewCard("bedroom"),
+		"bob",
+		"charlie",
+	)
+	question.SetAnswer(UnknownAnswer)
+	game.DoTurn(question)
+
+	whereCard := lookupCard(t, game.whereCategory, "bedroom")
+	if whereCard.possessor != "charlie" {
+		t.Error("Game.analyseUnknownAnswer() 2 cards were in known locations and charlie showed a card when asked about them but the 3rd wasn't marked as his.")
+	}
+}
+
+func TestUnkownAnswerWith2KnownsAssumptions(t *testing.T) {
+	game := GenSampleGame()
+	game.AddStartingHand([]*Card{
+		NewCard("green"),
+	})
+
+	question := NewQuestion(
+		NewCard("green"),
+		NewCard("dagger"),
+		NewCard("bedroom"),
+		"THIS",
+		"charlie",
+	)
+	question.SetAnswer(WhatAnswer)
+	game.DoTurn(question)
+
+	question = NewQuestion(
+		NewCard("green"),
+		NewCard("dagger"),
+		NewCard("bedroom"),
+		"bob",
+		"charlie",
+	)
+	question.SetAnswer(UnknownAnswer)
+	game.DoTurn(question)
+
+	whereCard := lookupCard(t, game.whereCategory, "bedroom")
+	if whereCard.possessor == "charlie" {
+		t.Error("Game.analyseUnknownAnswer() 2 cards were in known locations but one was charlie's and charlie showed a card when asked about them and the 3rd was incorrectly assumed to have been shown.")
 	}
 }
