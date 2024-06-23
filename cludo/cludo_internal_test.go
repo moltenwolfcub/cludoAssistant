@@ -1,6 +1,7 @@
 package cludo
 
 import (
+	"slices"
 	"testing"
 )
 
@@ -209,5 +210,33 @@ func TestStartingHandMultipleCards(t *testing.T) {
 	}
 	if !lookupCard(t, game.whereCategory, "bathroom").found {
 		t.Error("Game.AddStartingHand() Bathroom card wasn't marked as found when it was in the starting hand")
+	}
+}
+
+func TestTurnNonPossessor(t *testing.T) {
+	game := GenSampleGame()
+
+	question := NewQuestion(
+		NewCard("white"),
+		NewCard("pistol"),
+		NewCard("bedroom"),
+		"THIS",
+		"alice",
+	)
+	question.SetAnswer(NoAnswer)
+
+	game.DoTurn(question)
+
+	whoCard := lookupCard(t, game.whoCategory, "white")
+	if !slices.Contains(whoCard.nonPossessors, "alice") {
+		t.Error("Game.DoTurn() Alice couldn't answer the question but she wasn't marked as not having the person")
+	}
+	whatCard := lookupCard(t, game.whatCategory, "pistol")
+	if !slices.Contains(whatCard.nonPossessors, "alice") {
+		t.Error("Game.DoTurn() Alice couldn't answer the question but she wasn't marked as not having the weapon")
+	}
+	whereCard := lookupCard(t, game.whereCategory, "bedroom")
+	if !slices.Contains(whereCard.nonPossessors, "alice") {
+		t.Error("Game.DoTurn() Alice couldn't answer the question but she wasn't marked as not having the location")
 	}
 }
