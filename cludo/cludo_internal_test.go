@@ -40,17 +40,17 @@ func TestTurnWhoAnswerUpdatesFound(t *testing.T) {
 	game.DoTurn(question)
 
 	whiteCard := lookupCard(t, game.whoCategory, "white")
-	if !whiteCard.found {
+	if !whiteCard.IsFound() {
 		t.Error("Game.DoTurn() Was shown a who card but didn't update the who card")
 	}
 
 	pistolCard := lookupCard(t, game.whatCategory, "pistol")
-	if pistolCard.found {
+	if pistolCard.IsFound() {
 		t.Error("Game.DoTurn() Was shown a who card but the what card was set to found")
 	}
 
 	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
-	if bedroomCard.found {
+	if bedroomCard.IsFound() {
 		t.Error("Game.DoTurn() Was shown a who card but the where card was set to found")
 	}
 }
@@ -70,17 +70,17 @@ func TestTurnWhatAnswerUpdatesFound(t *testing.T) {
 	game.DoTurn(question)
 
 	pistolCard := lookupCard(t, game.whatCategory, "pistol")
-	if !pistolCard.found {
+	if !pistolCard.IsFound() {
 		t.Error("Game.DoTurn() Was shown a what card but didn't update the what card")
 	}
 
 	whiteCard := lookupCard(t, game.whoCategory, "white")
-	if whiteCard.found {
+	if whiteCard.IsFound() {
 		t.Error("Game.DoTurn() Was shown a what card but the who card was set to found")
 	}
 
 	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
-	if bedroomCard.found {
+	if bedroomCard.IsFound() {
 		t.Error("Game.DoTurn() Was shown a what card but the where card was set to found")
 	}
 }
@@ -100,17 +100,17 @@ func TestTurnWhereAnswerUpdatesFound(t *testing.T) {
 	game.DoTurn(question)
 
 	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
-	if !bedroomCard.found {
+	if !bedroomCard.IsFound() {
 		t.Error("Game.DoTurn() Was shown a where card but didn't update the where card")
 	}
 
 	whiteCard := lookupCard(t, game.whoCategory, "white")
-	if whiteCard.found {
+	if whiteCard.IsFound() {
 		t.Error("Game.DoTurn() Was shown a where card but the who card was set to found")
 	}
 
 	pistolCard := lookupCard(t, game.whatCategory, "pistol")
-	if pistolCard.found {
+	if pistolCard.IsFound() {
 		t.Error("Game.DoTurn() Was shown a where card but the what card was set to found")
 	}
 }
@@ -182,7 +182,7 @@ func TestStartingHandOneCard(t *testing.T) {
 	)
 
 	pipeCard := lookupCard(t, game.whatCategory, "lead pipe")
-	if !pipeCard.found {
+	if !pipeCard.IsFound() {
 		t.Error("Game.AddStartingHand() Started with 1 card but it wasn't marked as found.")
 	}
 	if pipeCard.possessor != "THIS" {
@@ -199,16 +199,16 @@ func TestStartingHandMultipleCards(t *testing.T) {
 		NewCard("bathroom"),
 	})
 
-	if !lookupCard(t, game.whatCategory, "wrench").found {
+	if !lookupCard(t, game.whatCategory, "wrench").IsFound() {
 		t.Error("Game.AddStartingHand() Wrench card wasn't marked as found when it was in the starting hand")
 	}
-	if !lookupCard(t, game.whoCategory, "green").found {
+	if !lookupCard(t, game.whoCategory, "green").IsFound() {
 		t.Error("Game.AddStartingHand() Green card wasn't marked as found when it was in the starting hand")
 	}
-	if !lookupCard(t, game.whereCategory, "study").found {
+	if !lookupCard(t, game.whereCategory, "study").IsFound() {
 		t.Error("Game.AddStartingHand() Study card wasn't marked as found when it was in the starting hand")
 	}
-	if !lookupCard(t, game.whereCategory, "bathroom").found {
+	if !lookupCard(t, game.whereCategory, "bathroom").IsFound() {
 		t.Error("Game.AddStartingHand() Bathroom card wasn't marked as found when it was in the starting hand")
 	}
 }

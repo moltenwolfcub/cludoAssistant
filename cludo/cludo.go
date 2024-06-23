@@ -28,6 +28,10 @@ func (c *Card) SetFound(possessor Player) {
 	c.possessor = possessor
 }
 
+func (c Card) IsFound() bool {
+	return c.found
+}
+
 func (c *Card) AddNonPossessor(player Player) {
 	c.nonPossessors = append(c.nonPossessors, player)
 }
