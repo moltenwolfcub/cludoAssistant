@@ -1,14 +1,19 @@
 package cludo
 
-import "slices"
+import (
+	"fmt"
+	"slices"
+)
 
 type Option struct {
 	name  string
 	found bool
+
+	possessor Player
 }
 
-func NewOption(name string) Option {
-	return Option{
+func NewOption(name string) *Option {
+	return &Option{
 		name:  name,
 		found: false,
 	}
@@ -19,23 +24,32 @@ func (o *Option) SetFound() {
 }
 
 type QuestionCategory struct {
-	Options []Option
+	Options []*Option
 }
 
-func NewQuestionCategory(options ...Option) QuestionCategory {
+func NewQuestionCategory(options ...*Option) QuestionCategory {
 	return QuestionCategory{
 		Options: options,
 	}
 }
 
 func (q QuestionCategory) HasKnownSolution() bool {
-	available := []Option{}
+	available := []*Option{}
 	for _, o := range q.Options {
 		if !o.found {
 			available = append(available, o)
 		}
 	}
 	return len(available) == 1
+}
+
+func (q *QuestionCategory) FoundOption(option *Option) {
+	for _, o := range q.Options {
+		if option.name == o.name {
+			o.SetFound()
+			return
+		}
+	}
 }
 
 type Answer int
@@ -48,9 +62,9 @@ const (
 )
 
 type Question struct {
-	whoPart   Option
-	whatPart  Option
-	wherePart Option
+	whoPart   *Option
+	whatPart  *Option
+	wherePart *Option
 
 	asker    Player
 	answerer Player
@@ -58,7 +72,7 @@ type Question struct {
 	answer Answer
 }
 
-func NewQuestion(who, what, where Option, asker, answerer Player) Question {
+func NewQuestion(who, what, where *Option, asker, answerer Player) Question {
 	return Question{
 		whoPart:   who,
 		whatPart:  what,
@@ -66,6 +80,10 @@ func NewQuestion(who, what, where Option, asker, answerer Player) Question {
 		asker:     asker,
 		answerer:  answerer,
 	}
+}
+
+func (q *Question) SetAnswer(a Answer) {
+	q.answer = a
 }
 
 type Player string
@@ -127,13 +145,13 @@ func NewDefaultGame(otherPlayers []string) Game {
 }
 
 func (g Game) EnsureValidQuestion(question Question) bool {
-	if !slices.ContainsFunc(g.whoCategory.Options, func(o Option) bool { return o.name == question.whoPart.name }) {
+	if !slices.ContainsFunc(g.whoCategory.Options, func(o *Option) bool { return o.name == question.whoPart.name }) {
 		return false
 	}
-	if !slices.ContainsFunc(g.whatCategory.Options, func(o Option) bool { return o.name == question.whatPart.name }) {
+	if !slices.ContainsFunc(g.whatCategory.Options, func(o *Option) bool { return o.name == question.whatPart.name }) {
 		return false
 	}
-	if !slices.ContainsFunc(g.whereCategory.Options, func(o Option) bool { return o.name == question.wherePart.name }) {
+	if !slices.ContainsFunc(g.whereCategory.Options, func(o *Option) bool { return o.name == question.wherePart.name }) {
 		return false
 	}
 	if !slices.Contains(g.players, question.asker) {
@@ -146,6 +164,17 @@ func (g Game) EnsureValidQuestion(question Question) bool {
 	return true
 }
 
-func (g Game) DoTurn() {
+func (g *Game) DoTurn(question Question) {
+	g.EnsureValidQuestion(question)
 
+	switch question.answer {
+	case NoAnswer:
+		fmt.Println("Not Implemented")
+	case WhoAnswer:
+		g.whoCategory.FoundOption(question.whoPart)
+	case WhatAnswer:
+		g.whatCategory.FoundOption(question.whatPart)
+	case WhereAnswer:
+		g.whereCategory.FoundOption(question.wherePart)
+	}
 }
