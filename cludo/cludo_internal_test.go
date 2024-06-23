@@ -179,12 +179,35 @@ func TestStartingHandOneOption(t *testing.T) {
 	game.AddStartingHand(
 		[]*Option{NewOption("lead pipe")},
 	)
-	pipeOption := lookupOption(t, game.whatCategory, "lead pipe")
 
+	pipeOption := lookupOption(t, game.whatCategory, "lead pipe")
 	if !pipeOption.found {
 		t.Error("Game.AddStartingHand() Started with 1 card but it wasn't marked as found.")
 	}
 	if pipeOption.possessor != "THIS" {
 		t.Error("Game.AddStartingHand() Started with 1 card but its owner wasn't THIS.")
+	}
+}
+
+func TestStartingHandMultipleOptions(t *testing.T) {
+	game := GenSampleGame()
+	game.AddStartingHand([]*Option{
+		NewOption("wrench"),
+		NewOption("green"),
+		NewOption("study"),
+		NewOption("bathroom"),
+	})
+
+	if !lookupOption(t, game.whatCategory, "wrench").found {
+		t.Error("Game.AddStartingHand() Wrench card wasn't marked as found when it was in the starting hand")
+	}
+	if !lookupOption(t, game.whoCategory, "green").found {
+		t.Error("Game.AddStartingHand() Green card wasn't marked as found when it was in the starting hand")
+	}
+	if !lookupOption(t, game.whereCategory, "study").found {
+		t.Error("Game.AddStartingHand() Study card wasn't marked as found when it was in the starting hand")
+	}
+	if !lookupOption(t, game.whereCategory, "bathroom").found {
+		t.Error("Game.AddStartingHand() Bathroom card wasn't marked as found when it was in the starting hand")
 	}
 }
