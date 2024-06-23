@@ -36,9 +36,29 @@ func main() {
 		cludo.NewCard("lead pipe"),
 		cludo.NewCard("games room"),
 		"THIS",
+		"alice",
+	)
+	q.SetAnswer(cludo.NoAnswer)
+	game.DoTurn(q)
+
+	q = cludo.NewQuestion(
+		cludo.NewCard("green"),
+		cludo.NewCard("lead pipe"),
+		cludo.NewCard("games room"),
+		"THIS",
 		"bob",
 	)
-	q.SetAnswer(cludo.WhoAnswer)
+	q.SetAnswer(cludo.NoAnswer)
+	game.DoTurn(q)
+
+	q = cludo.NewQuestion(
+		cludo.NewCard("green"),
+		cludo.NewCard("lead pipe"),
+		cludo.NewCard("games room"),
+		"THIS",
+		"charlie",
+	)
+	q.SetAnswer(cludo.WhereAnswer)
 	game.DoTurn(q)
 
 	fmt.Println(game)

@@ -12,6 +12,8 @@ type Card struct {
 
 	found     bool
 	possessor Player
+
+	nonPossessors []Player
 }
 
 func NewCard(name string) *Card {
@@ -24,6 +26,10 @@ func NewCard(name string) *Card {
 func (c *Card) SetFound(possessor Player) {
 	c.found = true
 	c.possessor = possessor
+}
+
+func (c *Card) AddNonPossessor(player Player) {
+	c.nonPossessors = append(c.nonPossessors, player)
 }
 
 type QuestionCategory struct {
@@ -205,6 +211,8 @@ func (g Game) String() string {
 
 			if card.possessor == g.players[i-1] {
 				str += "✓"
+			} else if slices.Contains(card.nonPossessors, g.players[i-1]) {
+				str += "x"
 			} else {
 				str += " "
 			}
@@ -230,6 +238,8 @@ func (g Game) String() string {
 
 			if card.possessor == g.players[i-1] {
 				str += "✓"
+			} else if slices.Contains(card.nonPossessors, g.players[i-1]) {
+				str += "x"
 			} else {
 				str += " "
 			}
@@ -255,6 +265,8 @@ func (g Game) String() string {
 
 			if card.possessor == g.players[i-1] {
 				str += "✓"
+			} else if slices.Contains(card.nonPossessors, g.players[i-1]) {
+				str += "x"
 			} else {
 				str += " "
 			}
@@ -281,6 +293,22 @@ func (g *Game) AddStartingHand(hand []*Card) {
 			continue
 		}
 		panic(fmt.Sprintf("Can't have card `%v` in hand because it's not in the game.", c.name))
+	}
+
+	for _, c := range g.whoCategory.Cards {
+		if c.possessor != "THIS" {
+			c.nonPossessors = append(c.nonPossessors, "THIS")
+		}
+	}
+	for _, c := range g.whatCategory.Cards {
+		if c.possessor != "THIS" {
+			c.nonPossessors = append(c.nonPossessors, "THIS")
+		}
+	}
+	for _, c := range g.whereCategory.Cards {
+		if c.possessor != "THIS" {
+			c.nonPossessors = append(c.nonPossessors, "THIS")
+		}
 	}
 }
 
@@ -311,7 +339,24 @@ func (g *Game) DoTurn(question Question) {
 	case UnknownAnswer:
 		fmt.Println("Not Implemented")
 	case NoAnswer:
-		fmt.Println("Not Implemented")
+		for _, c := range g.whoCategory.Cards {
+			if c.name == question.whoPart.name {
+				c.AddNonPossessor(question.answerer)
+				break
+			}
+		}
+		for _, c := range g.whatCategory.Cards {
+			if c.name == question.whatPart.name {
+				c.AddNonPossessor(question.answerer)
+				break
+			}
+		}
+		for _, c := range g.whereCategory.Cards {
+			if c.name == question.wherePart.name {
+				c.AddNonPossessor(question.answerer)
+				break
+			}
+		}
 	case WhoAnswer:
 		g.whoCategory.FoundCard(question.whoPart, question.answerer)
 	case WhatAnswer:
