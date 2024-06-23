@@ -13,18 +13,18 @@ func main() {
 		"charlie",
 	})
 	game.AddStartingHand(
-		[]*cludo.Option{
-			cludo.NewOption("peacock"),
-			cludo.NewOption("white"),
-			cludo.NewOption("rope"),
-			cludo.NewOption("bathroom"),
+		[]*cludo.Card{
+			cludo.NewCard("peacock"),
+			cludo.NewCard("white"),
+			cludo.NewCard("rope"),
+			cludo.NewCard("bathroom"),
 		},
 	)
 
 	q := cludo.NewQuestion(
-		cludo.NewOption("scarlet"),
-		cludo.NewOption("dagger"),
-		cludo.NewOption("study"),
+		cludo.NewCard("scarlet"),
+		cludo.NewCard("dagger"),
+		cludo.NewCard("study"),
 		"THIS",
 		"alice",
 	)
@@ -32,9 +32,9 @@ func main() {
 	game.DoTurn(q)
 
 	q = cludo.NewQuestion(
-		cludo.NewOption("green"),
-		cludo.NewOption("lead pipe"),
-		cludo.NewOption("games room"),
+		cludo.NewCard("green"),
+		cludo.NewCard("lead pipe"),
+		cludo.NewCard("games room"),
 		"THIS",
 		"bob",
 	)

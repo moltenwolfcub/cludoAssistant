@@ -7,49 +7,49 @@ import (
 	"strings"
 )
 
-type Option struct {
+type Card struct {
 	name string
 
 	found     bool
 	possessor Player
 }
 
-func NewOption(name string) *Option {
-	return &Option{
+func NewCard(name string) *Card {
+	return &Card{
 		name:  name,
 		found: false,
 	}
 }
 
-func (o *Option) SetFound(possessor Player) {
-	o.found = true
-	o.possessor = possessor
+func (c *Card) SetFound(possessor Player) {
+	c.found = true
+	c.possessor = possessor
 }
 
 type QuestionCategory struct {
-	Options []*Option
+	Cards []*Card
 }
 
-func NewQuestionCategory(options ...*Option) QuestionCategory {
+func NewQuestionCategory(cards ...*Card) QuestionCategory {
 	return QuestionCategory{
-		Options: options,
+		Cards: cards,
 	}
 }
 
 func (q QuestionCategory) HasKnownSolution() bool {
 	var available int
-	for _, o := range q.Options {
-		if !o.found {
+	for _, c := range q.Cards {
+		if !c.found {
 			available++
 		}
 	}
 	return available == 1
 }
 
-func (q *QuestionCategory) FoundOption(option *Option, possessor Player) (success bool) {
-	for _, o := range q.Options {
-		if option.name == o.name {
-			o.SetFound(possessor)
+func (q *QuestionCategory) FoundCard(card *Card, possessor Player) (success bool) {
+	for _, c := range q.Cards {
+		if card.name == c.name {
+			c.SetFound(possessor)
 			return true
 		}
 	}
@@ -67,9 +67,9 @@ const (
 )
 
 type Question struct {
-	whoPart   *Option
-	whatPart  *Option
-	wherePart *Option
+	whoPart   *Card
+	whatPart  *Card
+	wherePart *Card
 
 	asker    Player
 	answerer Player
@@ -77,7 +77,7 @@ type Question struct {
 	answer Answer
 }
 
-func NewQuestion(who, what, where *Option, asker, answerer Player) Question {
+func NewQuestion(who, what, where *Card, asker, answerer Player) Question {
 	return Question{
 		whoPart:   who,
 		whatPart:  what,
@@ -104,31 +104,31 @@ type Game struct {
 func NewDefaultGame(otherPlayers []string) Game {
 	g := Game{
 		whoCategory: NewQuestionCategory(
-			NewOption("green"),
-			NewOption("mustard"),
-			NewOption("peacock"),
-			NewOption("plum"),
-			NewOption("scarlet"),
-			NewOption("white"),
+			NewCard("green"),
+			NewCard("mustard"),
+			NewCard("peacock"),
+			NewCard("plum"),
+			NewCard("scarlet"),
+			NewCard("white"),
 		),
 		whatCategory: NewQuestionCategory(
-			NewOption("wrench"),
-			NewOption("candlestick"),
-			NewOption("dagger"),
-			NewOption("pistol"),
-			NewOption("lead pipe"),
-			NewOption("rope"),
+			NewCard("wrench"),
+			NewCard("candlestick"),
+			NewCard("dagger"),
+			NewCard("pistol"),
+			NewCard("lead pipe"),
+			NewCard("rope"),
 		),
 		whereCategory: NewQuestionCategory(
-			NewOption("bathroom"),
-			NewOption("study"),
-			NewOption("dining room"),
-			NewOption("games room"),
-			NewOption("garage"),
-			NewOption("bedroom"),
-			NewOption("living room"),
-			NewOption("kitchen"),
-			NewOption("courtyard"),
+			NewCard("bathroom"),
+			NewCard("study"),
+			NewCard("dining room"),
+			NewCard("games room"),
+			NewCard("garage"),
+			NewCard("bedroom"),
+			NewCard("living room"),
+			NewCard("kitchen"),
+			NewCard("courtyard"),
 		),
 	}
 
@@ -152,26 +152,26 @@ func NewDefaultGame(otherPlayers []string) Game {
 func (g Game) String() string {
 	// setup
 
-	longestOptionLen := 0
-	for _, o := range g.whoCategory.Options {
-		if l := len(o.name); l > longestOptionLen {
-			longestOptionLen = l
+	longestCardNameLen := 0
+	for _, c := range g.whoCategory.Cards {
+		if l := len(c.name); l > longestCardNameLen {
+			longestCardNameLen = l
 		}
 	}
-	for _, o := range g.whatCategory.Options {
-		if l := len(o.name); l > longestOptionLen {
-			longestOptionLen = l
+	for _, c := range g.whatCategory.Cards {
+		if l := len(c.name); l > longestCardNameLen {
+			longestCardNameLen = l
 		}
 	}
-	for _, o := range g.whereCategory.Options {
-		if l := len(o.name); l > longestOptionLen {
-			longestOptionLen = l
+	for _, c := range g.whereCategory.Cards {
+		if l := len(c.name); l > longestCardNameLen {
+			longestCardNameLen = l
 		}
 	}
 
 	// player list setup
-	playerList := "|  " + strings.Repeat(" ", longestOptionLen) + "| you |"
-	columnSpacing := []int{longestOptionLen, 3}
+	playerList := "|  " + strings.Repeat(" ", longestCardNameLen) + "| you |"
+	columnSpacing := []int{longestCardNameLen, 3}
 
 	for _, player := range g.players {
 		if player == "THIS" {
@@ -193,8 +193,8 @@ func (g Game) String() string {
 
 	// WHO
 	str += "WHO " + strings.Repeat("=", allColumnWidth-4) + "\n"
-	for _, option := range g.whoCategory.Options {
-		str += fmt.Sprintf("| %s%s |", option.name, strings.Repeat(" ", columnSpacing[0]-len(option.name)))
+	for _, card := range g.whoCategory.Cards {
+		str += fmt.Sprintf("| %s%s |", card.name, strings.Repeat(" ", columnSpacing[0]-len(card.name)))
 
 		for i, width := range columnSpacing {
 			if i == 0 {
@@ -203,7 +203,7 @@ func (g Game) String() string {
 
 			str += " "
 
-			if option.possessor == g.players[i-1] {
+			if card.possessor == g.players[i-1] {
 				str += "✓"
 			} else {
 				str += " "
@@ -218,8 +218,8 @@ func (g Game) String() string {
 
 	// WHAT
 	str += "WHAT " + strings.Repeat("=", allColumnWidth-5) + "\n"
-	for _, option := range g.whatCategory.Options {
-		str += fmt.Sprintf("| %s%s |", option.name, strings.Repeat(" ", columnSpacing[0]-len(option.name)))
+	for _, card := range g.whatCategory.Cards {
+		str += fmt.Sprintf("| %s%s |", card.name, strings.Repeat(" ", columnSpacing[0]-len(card.name)))
 
 		for i, width := range columnSpacing {
 			if i == 0 {
@@ -228,7 +228,7 @@ func (g Game) String() string {
 
 			str += " "
 
-			if option.possessor == g.players[i-1] {
+			if card.possessor == g.players[i-1] {
 				str += "✓"
 			} else {
 				str += " "
@@ -243,8 +243,8 @@ func (g Game) String() string {
 
 	// WHERE
 	str += "WHERE " + strings.Repeat("=", allColumnWidth-6) + "\n"
-	for _, option := range g.whereCategory.Options {
-		str += fmt.Sprintf("| %s%s |", option.name, strings.Repeat(" ", columnSpacing[0]-len(option.name)))
+	for _, card := range g.whereCategory.Cards {
+		str += fmt.Sprintf("| %s%s |", card.name, strings.Repeat(" ", columnSpacing[0]-len(card.name)))
 
 		for i, width := range columnSpacing {
 			if i == 0 {
@@ -253,7 +253,7 @@ func (g Game) String() string {
 
 			str += " "
 
-			if option.possessor == g.players[i-1] {
+			if card.possessor == g.players[i-1] {
 				str += "✓"
 			} else {
 				str += " "
@@ -269,29 +269,29 @@ func (g Game) String() string {
 	return str
 }
 
-func (g *Game) AddStartingHand(hand []*Option) {
-	for _, o := range hand {
-		if g.whoCategory.FoundOption(o, "THIS") {
+func (g *Game) AddStartingHand(hand []*Card) {
+	for _, c := range hand {
+		if g.whoCategory.FoundCard(c, "THIS") {
 			continue
 		}
-		if g.whatCategory.FoundOption(o, "THIS") {
+		if g.whatCategory.FoundCard(c, "THIS") {
 			continue
 		}
-		if g.whereCategory.FoundOption(o, "THIS") {
+		if g.whereCategory.FoundCard(c, "THIS") {
 			continue
 		}
-		panic(fmt.Sprintf("Can't have card `%v` in hand because it's not in the game.", o.name))
+		panic(fmt.Sprintf("Can't have card `%v` in hand because it's not in the game.", c.name))
 	}
 }
 
 func (g Game) EnsureValidQuestion(question Question) bool {
-	if !slices.ContainsFunc(g.whoCategory.Options, func(o *Option) bool { return o.name == question.whoPart.name }) {
+	if !slices.ContainsFunc(g.whoCategory.Cards, func(c *Card) bool { return c.name == question.whoPart.name }) {
 		return false
 	}
-	if !slices.ContainsFunc(g.whatCategory.Options, func(o *Option) bool { return o.name == question.whatPart.name }) {
+	if !slices.ContainsFunc(g.whatCategory.Cards, func(c *Card) bool { return c.name == question.whatPart.name }) {
 		return false
 	}
-	if !slices.ContainsFunc(g.whereCategory.Options, func(o *Option) bool { return o.name == question.wherePart.name }) {
+	if !slices.ContainsFunc(g.whereCategory.Cards, func(c *Card) bool { return c.name == question.wherePart.name }) {
 		return false
 	}
 	if !slices.Contains(g.players, question.asker) {
@@ -313,10 +313,10 @@ func (g *Game) DoTurn(question Question) {
 	case NoAnswer:
 		fmt.Println("Not Implemented")
 	case WhoAnswer:
-		g.whoCategory.FoundOption(question.whoPart, question.answerer)
+		g.whoCategory.FoundCard(question.whoPart, question.answerer)
 	case WhatAnswer:
-		g.whatCategory.FoundOption(question.whatPart, question.answerer)
+		g.whatCategory.FoundCard(question.whatPart, question.answerer)
 	case WhereAnswer:
-		g.whereCategory.FoundOption(question.wherePart, question.answerer)
+		g.whereCategory.FoundCard(question.wherePart, question.answerer)
 	}
 }

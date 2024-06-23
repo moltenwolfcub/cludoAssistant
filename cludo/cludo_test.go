@@ -8,19 +8,19 @@ import (
 
 func GenSampleQuestionCategory() cludo.QuestionCategory {
 	return cludo.NewQuestionCategory(
-		cludo.NewOption("Zero"),
-		cludo.NewOption("One"),
-		cludo.NewOption("two"),
-		cludo.NewOption("three"),
+		cludo.NewCard("Zero"),
+		cludo.NewCard("One"),
+		cludo.NewCard("two"),
+		cludo.NewCard("three"),
 	)
 }
 
 func TestHasKnownSolutionWithSolution(t *testing.T) {
 	q := GenSampleQuestionCategory()
 
-	q.Options[0].SetFound("")
-	q.Options[1].SetFound("")
-	q.Options[2].SetFound("")
+	q.Cards[0].SetFound("")
+	q.Cards[1].SetFound("")
+	q.Cards[2].SetFound("")
 
 	if !q.HasKnownSolution() {
 		t.Error("Question.HasKnownSolution() Couldn't find solution when there was one present.")
@@ -30,8 +30,8 @@ func TestHasKnownSolutionWithSolution(t *testing.T) {
 func TestHasKnownSolutionWithoutSolution(t *testing.T) {
 	q := GenSampleQuestionCategory()
 
-	q.Options[0].SetFound("")
-	q.Options[1].SetFound("")
+	q.Cards[0].SetFound("")
+	q.Cards[1].SetFound("")
 
 	if q.HasKnownSolution() {
 		t.Error("Question.HasKnownSolution() Found a solution when there were multiple options.")
@@ -41,10 +41,10 @@ func TestHasKnownSolutionWithoutSolution(t *testing.T) {
 func TestHasKnownSolutionWithoutOptions(t *testing.T) {
 	q := GenSampleQuestionCategory()
 
-	q.Options[0].SetFound("")
-	q.Options[1].SetFound("")
-	q.Options[2].SetFound("")
-	q.Options[3].SetFound("")
+	q.Cards[0].SetFound("")
+	q.Cards[1].SetFound("")
+	q.Cards[2].SetFound("")
+	q.Cards[3].SetFound("")
 
 	if q.HasKnownSolution() {
 		t.Error("Question.HasKnownSolution() Found a solution when there were no options left.")
@@ -64,9 +64,9 @@ func TestEnsureValidQuestionWithValid(t *testing.T) {
 	game := GenSampleGame()
 
 	question := cludo.NewQuestion(
-		cludo.NewOption("plum"),
-		cludo.NewOption("dagger"),
-		cludo.NewOption("study"),
+		cludo.NewCard("plum"),
+		cludo.NewCard("dagger"),
+		cludo.NewCard("study"),
 		cludo.Player("THIS"),
 		cludo.Player("alice"),
 	)
@@ -80,9 +80,9 @@ func TestEnsureValidQuestionWithInvalidQuestionComponents(t *testing.T) {
 	game := GenSampleGame()
 
 	question := cludo.NewQuestion(
-		cludo.NewOption("eva smith"),
-		cludo.NewOption("bleach"),
-		cludo.NewOption("the factory"),
+		cludo.NewCard("eva smith"),
+		cludo.NewCard("bleach"),
+		cludo.NewCard("the factory"),
 		cludo.Player("THIS"),
 		cludo.Player("alice"),
 	)
@@ -96,9 +96,9 @@ func TestEnsureValidQuestionWithInvalidPlayers(t *testing.T) {
 	game := GenSampleGame()
 
 	question := cludo.NewQuestion(
-		cludo.NewOption("mustard"),
-		cludo.NewOption("rope"),
-		cludo.NewOption("kitchen"),
+		cludo.NewCard("mustard"),
+		cludo.NewCard("rope"),
+		cludo.NewCard("kitchen"),
 		cludo.Player("eric"),
 		cludo.Player("inspector goole"),
 	)
