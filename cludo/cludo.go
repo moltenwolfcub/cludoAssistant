@@ -7,6 +7,11 @@ import (
 	"strings"
 )
 
+type Link struct {
+	player Player
+	other  *Card
+}
+
 type Card struct {
 	name string
 
@@ -14,6 +19,8 @@ type Card struct {
 	possessor Player
 
 	nonPossessors []Player
+
+	links []Link
 }
 
 func NewCard(name string) *Card {
@@ -34,6 +41,13 @@ func (c Card) IsFound() bool {
 
 func (c *Card) AddNonPossessor(player Player) {
 	c.nonPossessors = append(c.nonPossessors, player)
+}
+
+func (c *Card) AddLink(player Player, other *Card) {
+	c.links = append(c.links, Link{
+		player: player,
+		other:  other,
+	})
 }
 
 type QuestionCategory struct {
@@ -398,9 +412,30 @@ func (g *Game) analyseUnknownAnswer(question Question) {
 
 	if whoFound && whatFound {
 		gameWhere.SetFound(question.answerer)
-	} else if whoFound && whereFound {
+		return
+	}
+	if whoFound && whereFound {
 		gameWhat.SetFound(question.answerer)
-	} else if whatFound && whereFound {
+		return
+	}
+	if whatFound && whereFound {
 		gameWho.SetFound(question.answerer)
+		return
+	}
+
+	if whoFound && !(gameWhere.IsFound() || gameWhat.IsFound()) {
+		gameWhere.AddLink(question.answerer, gameWhat)
+		gameWhat.AddLink(question.answerer, gameWhere)
+		return
+	}
+	if whatFound && !(gameWhere.IsFound() || gameWho.IsFound()) {
+		gameWhere.AddLink(question.answerer, gameWho)
+		gameWho.AddLink(question.answerer, gameWhere)
+		return
+	}
+	if whereFound && !(gameWho.IsFound() || gameWhat.IsFound()) {
+		gameWho.AddLink(question.answerer, gameWhat)
+		gameWhat.AddLink(question.answerer, gameWho)
+		return
 	}
 }

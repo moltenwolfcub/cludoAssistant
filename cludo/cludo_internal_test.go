@@ -335,3 +335,39 @@ func TestUnkownAnswerWith2KnownsAssumptions(t *testing.T) {
 		t.Error("Game.analyseUnknownAnswer() 2 cards were in known locations but one was charlie's and charlie showed a card when asked about them and the 3rd was incorrectly assumed to have been shown.")
 	}
 }
+
+func TestUnkownAnswerWith1Known(t *testing.T) {
+	game := GenSampleGame()
+	game.AddStartingHand([]*Card{
+		NewCard("green"),
+	})
+
+	question := NewQuestion(
+		NewCard("green"),
+		NewCard("dagger"),
+		NewCard("bedroom"),
+		"bob",
+		"charlie",
+	)
+	question.SetAnswer(UnknownAnswer)
+	game.DoTurn(question)
+
+	daggerCard := lookupCard(t, game.whatCategory, "dagger")
+	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
+
+	daggerLink := Link{
+		player: "charlie",
+		other:  bedroomCard,
+	}
+	bedroomLink := Link{
+		player: "charlie",
+		other:  daggerCard,
+	}
+
+	if !slices.Contains(daggerCard.links, daggerLink) {
+		t.Error("Game.analyseUnknownAnswer() 1 card was in a known location but Dagger didn't have Bedroom as a link")
+	}
+	if !slices.Contains(bedroomCard.links, bedroomLink) {
+		t.Error("Game.analyseUnknownAnswer() 1 card was in a known location but Bedroom didn't have Dagger as a link")
+	}
+}
