@@ -385,7 +385,6 @@ func (g *Game) DoTurn(question Question) {
 }
 
 func (g *Game) analyseUnknownAnswer(question Question) {
-	// simple 2 knowns from question
 	var gameWho, gameWhat, gameWhere *Card
 	for _, c := range g.whoCategory.Cards {
 		if c.name == question.whoPart.name {
@@ -405,11 +404,18 @@ func (g *Game) analyseUnknownAnswer(question Question) {
 			break
 		}
 	}
+
+	// all the cards are already known so no new information can be gathered
+	if gameWho.IsFound() && gameWhat.IsFound() && gameWhere.IsFound() {
+		return
+	}
+
 	// i know the card isn't owned by the answerer
 	whoFound := gameWho.IsFound() && gameWho.possessor != question.answerer
 	whatFound := gameWhat.IsFound() && gameWhat.possessor != question.answerer
 	whereFound := gameWhere.IsFound() && gameWhere.possessor != question.answerer
 
+	// simple 2 knowns from question
 	if whoFound && whatFound {
 		gameWhere.SetFound(question.answerer)
 		return
@@ -423,6 +429,7 @@ func (g *Game) analyseUnknownAnswer(question Question) {
 		return
 	}
 
+	// 1 known from question link creation
 	if whoFound && !(gameWhere.IsFound() || gameWhat.IsFound()) {
 		gameWhere.AddLink(question.answerer, gameWhat)
 		gameWhat.AddLink(question.answerer, gameWhere)
