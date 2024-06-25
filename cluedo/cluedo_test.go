@@ -1,17 +1,17 @@
-package cludo_test
+package cluedo_test
 
 import (
 	"testing"
 
-	"github.com/moltenwolfcub/cludoAssistant/cludo"
+	"github.com/moltenwolfcub/cluedoAssistant/cluedo"
 )
 
-func GenSampleQuestionCategory() cludo.QuestionCategory {
-	return cludo.NewQuestionCategory(
-		cludo.NewCard("Zero"),
-		cludo.NewCard("One"),
-		cludo.NewCard("two"),
-		cludo.NewCard("three"),
+func GenSampleQuestionCategory() cluedo.QuestionCategory {
+	return cluedo.NewQuestionCategory(
+		cluedo.NewCard("Zero"),
+		cluedo.NewCard("One"),
+		cluedo.NewCard("two"),
+		cluedo.NewCard("three"),
 	)
 }
 
@@ -51,24 +51,24 @@ func TestHasKnownSolutionWithoutOptions(t *testing.T) {
 	}
 }
 
-func GenSampleGame() cludo.Game {
+func GenSampleGame() cluedo.Game {
 	players := []string{
 		"alice",
 		"bob",
 		"charlie",
 	}
-	return cludo.NewDefaultGame(players)
+	return cluedo.NewDefaultGame(players)
 }
 
 func TestEnsureValidQuestionWithValid(t *testing.T) {
 	game := GenSampleGame()
 
-	question := cludo.NewQuestion(
-		cludo.NewCard("plum"),
-		cludo.NewCard("dagger"),
-		cludo.NewCard("study"),
-		cludo.Player("THIS"),
-		cludo.Player("alice"),
+	question := cluedo.NewQuestion(
+		cluedo.NewCard("plum"),
+		cluedo.NewCard("dagger"),
+		cluedo.NewCard("study"),
+		cluedo.Player("THIS"),
+		cluedo.Player("alice"),
 	)
 
 	if !game.EnsureValidQuestion(question) {
@@ -79,12 +79,12 @@ func TestEnsureValidQuestionWithValid(t *testing.T) {
 func TestEnsureValidQuestionWithInvalidQuestionComponents(t *testing.T) {
 	game := GenSampleGame()
 
-	question := cludo.NewQuestion(
-		cludo.NewCard("eva smith"),
-		cludo.NewCard("bleach"),
-		cludo.NewCard("the factory"),
-		cludo.Player("THIS"),
-		cludo.Player("alice"),
+	question := cluedo.NewQuestion(
+		cluedo.NewCard("eva smith"),
+		cluedo.NewCard("bleach"),
+		cluedo.NewCard("the factory"),
+		cluedo.Player("THIS"),
+		cluedo.Player("alice"),
 	)
 
 	if game.EnsureValidQuestion(question) {
@@ -95,12 +95,12 @@ func TestEnsureValidQuestionWithInvalidQuestionComponents(t *testing.T) {
 func TestEnsureValidQuestionWithInvalidPlayers(t *testing.T) {
 	game := GenSampleGame()
 
-	question := cludo.NewQuestion(
-		cludo.NewCard("mustard"),
-		cludo.NewCard("rope"),
-		cludo.NewCard("kitchen"),
-		cludo.Player("eric"),
-		cludo.Player("inspector goole"),
+	question := cluedo.NewQuestion(
+		cluedo.NewCard("mustard"),
+		cluedo.NewCard("rope"),
+		cluedo.NewCard("kitchen"),
+		cluedo.Player("eric"),
+		cluedo.Player("inspector goole"),
 	)
 
 	if game.EnsureValidQuestion(question) {

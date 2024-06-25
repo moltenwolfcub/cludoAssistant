@@ -3,62 +3,62 @@ package main
 import (
 	"fmt"
 
-	"github.com/moltenwolfcub/cludoAssistant/cludo"
+	"github.com/moltenwolfcub/cluedoAssistant/cluedo"
 )
 
 func main() {
-	game := cludo.NewDefaultGame([]string{
+	game := cluedo.NewDefaultGame([]string{
 		"alice",
 		"bob",
 		"charlie",
 	})
 	game.AddStartingHand(
-		[]*cludo.Card{
-			cludo.NewCard("peacock"),
-			cludo.NewCard("white"),
-			cludo.NewCard("rope"),
-			cludo.NewCard("bathroom"),
+		[]*cluedo.Card{
+			cluedo.NewCard("peacock"),
+			cluedo.NewCard("white"),
+			cluedo.NewCard("rope"),
+			cluedo.NewCard("bathroom"),
 		},
 	)
 
-	q := cludo.NewQuestion(
-		cludo.NewCard("scarlet"),
-		cludo.NewCard("dagger"),
-		cludo.NewCard("study"),
+	q := cluedo.NewQuestion(
+		cluedo.NewCard("scarlet"),
+		cluedo.NewCard("dagger"),
+		cluedo.NewCard("study"),
 		"THIS",
 		"alice",
 	)
-	q.SetAnswer(cludo.WhoAnswer)
+	q.SetAnswer(cluedo.WhoAnswer)
 	game.DoTurn(q)
 
-	q = cludo.NewQuestion(
-		cludo.NewCard("green"),
-		cludo.NewCard("lead pipe"),
-		cludo.NewCard("games room"),
+	q = cluedo.NewQuestion(
+		cluedo.NewCard("green"),
+		cluedo.NewCard("lead pipe"),
+		cluedo.NewCard("games room"),
 		"THIS",
 		"alice",
 	)
-	q.SetAnswer(cludo.NoAnswer)
+	q.SetAnswer(cluedo.NoAnswer)
 	game.DoTurn(q)
 
-	q = cludo.NewQuestion(
-		cludo.NewCard("green"),
-		cludo.NewCard("lead pipe"),
-		cludo.NewCard("games room"),
+	q = cluedo.NewQuestion(
+		cluedo.NewCard("green"),
+		cluedo.NewCard("lead pipe"),
+		cluedo.NewCard("games room"),
 		"THIS",
 		"bob",
 	)
-	q.SetAnswer(cludo.NoAnswer)
+	q.SetAnswer(cluedo.NoAnswer)
 	game.DoTurn(q)
 
-	q = cludo.NewQuestion(
-		cludo.NewCard("green"),
-		cludo.NewCard("lead pipe"),
-		cludo.NewCard("games room"),
+	q = cluedo.NewQuestion(
+		cluedo.NewCard("green"),
+		cluedo.NewCard("lead pipe"),
+		cluedo.NewCard("games room"),
 		"THIS",
 		"charlie",
 	)
-	q.SetAnswer(cludo.WhereAnswer)
+	q.SetAnswer(cluedo.WhereAnswer)
 	game.DoTurn(q)
 
 	fmt.Println(game)

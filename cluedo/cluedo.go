@@ -1,4 +1,4 @@
-package cludo
+package cluedo
 
 import (
 	"fmt"
