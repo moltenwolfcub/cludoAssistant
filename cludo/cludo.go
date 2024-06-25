@@ -30,9 +30,27 @@ func NewCard(name string) *Card {
 	}
 }
 
-func (c *Card) SetFound(possessor Player) {
+func (c *Card) SetFound(possessor Player, destroyLinks bool) {
 	c.found = true
 	c.possessor = possessor
+
+	if !destroyLinks {
+		return
+	}
+	for i, l := range c.links {
+		if l.player != possessor {
+			//set the other half of the link to found
+			l.other.SetFound(l.player, false)
+		}
+		//destroy the link as it's now redundant
+		for j := range l.other.links {
+			if l.other.links[j].other == c && l.other.links[j].player == l.player {
+				l.other.links = slices.Delete(l.other.links, j, j+1)
+				break
+			}
+		}
+		c.links = slices.Delete(c.links, i, i+1)
+	}
 }
 
 func (c Card) IsFound() bool {
@@ -44,10 +62,14 @@ func (c *Card) AddNonPossessor(player Player) {
 }
 
 func (c *Card) AddLink(player Player, other *Card) {
-	c.links = append(c.links, Link{
+	newLink := Link{
 		player: player,
 		other:  other,
-	})
+	}
+
+	if !slices.Contains(c.links, newLink) {
+		c.links = append(c.links, newLink)
+	}
 }
 
 type QuestionCategory struct {
@@ -73,7 +95,7 @@ func (q QuestionCategory) HasKnownSolution() bool {
 func (q *QuestionCategory) FoundCard(card *Card, possessor Player) (success bool) {
 	for _, c := range q.Cards {
 		if card.name == c.name {
-			c.SetFound(possessor)
+			c.SetFound(possessor, true)
 			return true
 		}
 	}
@@ -417,15 +439,15 @@ func (g *Game) analyseUnknownAnswer(question Question) {
 
 	// simple 2 knowns from question
 	if whoFound && whatFound {
-		gameWhere.SetFound(question.answerer)
+		gameWhere.SetFound(question.answerer, true)
 		return
 	}
 	if whoFound && whereFound {
-		gameWhat.SetFound(question.answerer)
+		gameWhat.SetFound(question.answerer, true)
 		return
 	}
 	if whatFound && whereFound {
-		gameWho.SetFound(question.answerer)
+		gameWho.SetFound(question.answerer, true)
 		return
 	}
 

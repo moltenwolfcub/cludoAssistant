@@ -371,3 +371,104 @@ func TestUnkownAnswerWith1Known(t *testing.T) {
 		t.Error("Game.analyseUnknownAnswer() 1 card was in a known location but Bedroom didn't have Dagger as a link")
 	}
 }
+
+func TestLinkResolutionWithFind(t *testing.T) {
+	game := GenSampleGame()
+	game.AddStartingHand([]*Card{
+		NewCard("green"),
+	})
+
+	question := NewQuestion(
+		NewCard("green"),
+		NewCard("dagger"),
+		NewCard("bedroom"),
+		"bob",
+		"charlie",
+	)
+	question.SetAnswer(UnknownAnswer)
+	game.DoTurn(question)
+
+	question = NewQuestion(
+		NewCard("peacock"),
+		NewCard("dagger"),
+		NewCard("living room"),
+		"THIS",
+		"alice",
+	)
+	question.SetAnswer(WhatAnswer)
+	game.DoTurn(question)
+
+	daggerCard := lookupCard(t, game.whatCategory, "dagger")
+	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
+
+	if !bedroomCard.IsFound() {
+		t.Error("Charlie had either the bedroom or the dagger and we know alice has the dagger but the bedroom wasn't marked as found")
+	}
+	if bedroomCard.possessor != "charlie" {
+		t.Error("Charlie had either the bedroom or the dagger and we know alice has the dagger but charlie wasn't the possessor of the bedroom")
+	}
+
+	daggerLink := Link{
+		player: "charlie",
+		other:  bedroomCard,
+	}
+	bedroomLink := Link{
+		player: "charlie",
+		other:  daggerCard,
+	}
+	if slices.Contains(daggerCard.links, daggerLink) {
+		t.Error("The dagger's link has served it's purpose but it wasn't removed")
+	}
+	if slices.Contains(bedroomCard.links, bedroomLink) {
+		t.Error("The bedroom's link has served it's purpose but it wasn't removed")
+	}
+}
+
+func TestLinkResolutionWithoutFind(t *testing.T) {
+	game := GenSampleGame()
+	game.AddStartingHand([]*Card{
+		NewCard("green"),
+	})
+
+	question := NewQuestion(
+		NewCard("green"),
+		NewCard("dagger"),
+		NewCard("bedroom"),
+		"bob",
+		"charlie",
+	)
+	question.SetAnswer(UnknownAnswer)
+	game.DoTurn(question)
+
+	question = NewQuestion(
+		NewCard("peacock"),
+		NewCard("dagger"),
+		NewCard("living room"),
+		"THIS",
+		"charlie",
+	)
+	question.SetAnswer(WhatAnswer)
+	game.DoTurn(question)
+
+	daggerCard := lookupCard(t, game.whatCategory, "dagger")
+	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
+
+	if bedroomCard.IsFound() {
+		t.Error("Charlie had either the bedroom or the dagger and we now know charlie has the dagger but the bedroom was incorrectly marked as found")
+	}
+
+	daggerLink := Link{
+		player: "charlie",
+		other:  bedroomCard,
+	}
+	bedroomLink := Link{
+		player: "charlie",
+		other:  daggerCard,
+	}
+	if slices.Contains(daggerCard.links, daggerLink) {
+		t.Error("The dagger's link has served it's purpose but it wasn't removed")
+	}
+	if slices.Contains(bedroomCard.links, bedroomLink) {
+		t.Error("The bedroom's link has served it's purpose but it wasn't removed")
+	}
+}
