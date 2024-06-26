@@ -307,10 +307,10 @@ func (g Game) String() string {
 	columnSpacing := []int{longestCardNameLen, 3}
 
 	for _, player := range g.players {
-		if player.name == "THIS" {
+		if player.name == MeIdent {
 			continue
 		}
-		playerList += fmt.Sprintf(" %v |", player)
+		playerList += fmt.Sprintf(" %v |", player.name)
 		columnSpacing = append(columnSpacing, len(player.name))
 	}
 
@@ -356,7 +356,7 @@ func (g Game) String() string {
 
 			if card.IsFound() {
 				str += " "
-				if card.possessor.name != "THIS" {
+				if card.possessor.name != MeIdent {
 					str += string(card.possessor.name)
 				} else {
 					str += "you"
