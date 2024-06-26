@@ -113,6 +113,10 @@ func (c Card) IsFound() bool {
 }
 
 func (c *Card) AddNonPossessor(player Player) {
+	if slices.Contains(c.nonPossessors, player) {
+		return
+	}
+
 	c.nonPossessors = append(c.nonPossessors, player)
 }
 
@@ -419,6 +423,26 @@ func (g *Game) AddStartingHand(hand []*Card) {
 			c.nonPossessors = append(c.nonPossessors, "THIS")
 		}
 	}
+	g.UpdateNonPossessors()
+}
+
+func (g *Game) UpdateNonPossessors() {
+	allCards := []*Card{}
+	allCards = append(allCards, g.whoCategory.Cards...)
+	allCards = append(allCards, g.whatCategory.Cards...)
+	allCards = append(allCards, g.whereCategory.Cards...)
+
+	for _, c := range allCards {
+		if !c.IsFound() {
+			continue
+		}
+		for _, p := range g.players {
+			if p == c.possessor {
+				continue
+			}
+			c.AddNonPossessor(p)
+		}
+	}
 }
 
 func (g Game) EnsureValidQuestion(question Question) bool {
@@ -473,6 +497,7 @@ func (g *Game) DoTurn(question Question) {
 	case WhereAnswer:
 		g.whereCategory.FoundCard(question.wherePart, question.answerer)
 	}
+	g.UpdateNonPossessors()
 }
 
 func (g *Game) analyseUnknownAnswer(question Question) {
