@@ -21,45 +21,90 @@ func main() {
 		},
 	)
 
-	q := cluedo.NewQuestion(
-		cluedo.NewCard("scarlet"),
-		cluedo.NewCard("dagger"),
-		cluedo.NewCard("study"),
-		"THIS",
-		"alice",
+	AskQuestion(
+		game,
+		cluedo.NewQuestion(
+			cluedo.NewCard("white"),
+			cluedo.NewCard("dagger"),
+			cluedo.NewCard("study"),
+			"THIS",
+			"alice",
+		),
+		cluedo.NoAnswer,
 	)
-	q.SetAnswer(cluedo.WhoAnswer)
-	game.DoTurn(q)
+	AskQuestion(
+		game,
+		cluedo.NewQuestion(
+			cluedo.NewCard("white"),
+			cluedo.NewCard("dagger"),
+			cluedo.NewCard("study"),
+			"THIS",
+			"bob",
+		),
+		cluedo.NoAnswer,
+	)
+	AskQuestion(
+		game,
+		cluedo.NewQuestion(
+			cluedo.NewCard("white"),
+			cluedo.NewCard("dagger"),
+			cluedo.NewCard("study"),
+			"THIS",
+			"charlie",
+		),
+		cluedo.WhatAnswer,
+	)
 
-	q = cluedo.NewQuestion(
-		cluedo.NewCard("green"),
-		cluedo.NewCard("lead pipe"),
-		cluedo.NewCard("games room"),
-		"THIS",
-		"alice",
+	AskQuestion(
+		game,
+		cluedo.NewQuestion(
+			cluedo.NewCard("peacock"),
+			cluedo.NewCard("lead pipe"),
+			cluedo.NewCard("garage"),
+			"alice",
+			"bob",
+		),
+		cluedo.UnknownAnswer,
 	)
-	q.SetAnswer(cluedo.NoAnswer)
-	game.DoTurn(q)
 
-	q = cluedo.NewQuestion(
-		cluedo.NewCard("green"),
-		cluedo.NewCard("lead pipe"),
-		cluedo.NewCard("games room"),
-		"THIS",
-		"bob",
+	AskQuestion(
+		game,
+		cluedo.NewQuestion(
+			cluedo.NewCard("mustard"),
+			cluedo.NewCard("lead pipe"),
+			cluedo.NewCard("kitchen"),
+			"bob",
+			"charlie",
+		),
+		cluedo.NoAnswer,
 	)
-	q.SetAnswer(cluedo.NoAnswer)
-	game.DoTurn(q)
-
-	q = cluedo.NewQuestion(
-		cluedo.NewCard("green"),
-		cluedo.NewCard("lead pipe"),
-		cluedo.NewCard("games room"),
-		"THIS",
-		"charlie",
+	AskQuestion(
+		game,
+		cluedo.NewQuestion(
+			cluedo.NewCard("mustard"),
+			cluedo.NewCard("lead pipe"),
+			cluedo.NewCard("kitchen"),
+			"bob",
+			"THIS",
+		),
+		cluedo.NoAnswer,
 	)
-	q.SetAnswer(cluedo.WhereAnswer)
-	game.DoTurn(q)
+	AskQuestion(
+		game,
+		cluedo.NewQuestion(
+			cluedo.NewCard("mustard"),
+			cluedo.NewCard("lead pipe"),
+			cluedo.NewCard("kitchen"),
+			"bob",
+			"alice",
+		),
+		cluedo.UnknownAnswer,
+	)
 
 	fmt.Println(game)
+}
+
+func AskQuestion(g cluedo.Game, q cluedo.Question, a cluedo.Answer) {
+	q.SetAnswer(a)
+	g.DoTurn(q)
 }
