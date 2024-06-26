@@ -390,16 +390,19 @@ func TestUnkownAnswerWith0Knowns(t *testing.T) {
 	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
 
 	greenLink := TriLink{
+		this:   greenCard,
 		player: "charlie",
 		other1: bedroomCard,
 		other2: daggerCard,
 	}
 	daggerLink := TriLink{
+		this:   daggerCard,
 		player: "charlie",
 		other1: bedroomCard,
 		other2: greenCard,
 	}
 	bedroomLink := TriLink{
+		this:   bedroomCard,
 		player: "charlie",
 		other1: daggerCard,
 		other2: greenCard,
@@ -514,5 +517,157 @@ func TestLinkResolutionWithoutFind(t *testing.T) {
 	}
 	if slices.Contains(bedroomCard.links, bedroomLink) {
 		t.Error("The bedroom's link has served it's purpose but it wasn't removed")
+	}
+}
+
+func TestTriLinkResolutionWithFind(t *testing.T) {
+	game := GenSampleGame()
+
+	//create trilink
+	question := NewQuestion(
+		NewCard("green"),
+		NewCard("dagger"),
+		NewCard("bedroom"),
+		"bob",
+		"charlie",
+	)
+	question.SetAnswer(UnknownAnswer)
+	game.DoTurn(question)
+
+	//shrink to link
+	question = NewQuestion(
+		NewCard("peacock"),
+		NewCard("dagger"),
+		NewCard("living room"),
+		"THIS",
+		"alice",
+	)
+	question.SetAnswer(WhatAnswer)
+	game.DoTurn(question)
+
+	//check
+	greenCard := lookupCard(t, game.whoCategory, "green")
+	daggerCard := lookupCard(t, game.whatCategory, "dagger")
+	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
+
+	greenLink := Link{
+		player: "charlie",
+		other:  bedroomCard,
+	}
+	bedroomLink := Link{
+		player: "charlie",
+		other:  greenCard,
+	}
+
+	if !slices.Contains(greenCard.links, greenLink) {
+		t.Error("Game.analyseUnknownAnswer() TriLink should have been resolved to a normal link but one wasn't created")
+	}
+	if !slices.Contains(bedroomCard.links, bedroomLink) {
+		t.Error("Game.analyseUnknownAnswer() TriLink should have been resolved to a normal link but one wasn't created")
+	}
+
+	greenTriLink := TriLink{
+		this:   greenCard,
+		player: "charlie",
+		other1: daggerCard,
+		other2: bedroomCard,
+	}
+	daggerTriLink := TriLink{
+		this:   daggerCard,
+		player: "charlie",
+		other1: greenCard,
+		other2: bedroomCard,
+	}
+	bedroomTriLink := TriLink{
+		this:   bedroomCard,
+		player: "charlie",
+		other1: daggerCard,
+		other2: greenCard,
+	}
+
+	if slices.ContainsFunc(greenCard.trilinks, func(t TriLink) bool { return greenTriLink.Equals(t) }) {
+		t.Error("The bedroom's trilink has served it's purpose but it wasn't removed")
+	}
+	if slices.ContainsFunc(daggerCard.trilinks, func(t TriLink) bool { return daggerTriLink.Equals(t) }) {
+		t.Error("The dagger's trilink has served it's purpose but it wasn't removed")
+	}
+	if slices.ContainsFunc(bedroomCard.trilinks, func(t TriLink) bool { return bedroomTriLink.Equals(t) }) {
+		t.Error("The bedroom's trilink has served it's purpose but it wasn't removed")
+	}
+}
+
+func TestTriLinkResolutionWithoutFind(t *testing.T) {
+	game := GenSampleGame()
+
+	//create trilink
+	question := NewQuestion(
+		NewCard("green"),
+		NewCard("dagger"),
+		NewCard("bedroom"),
+		"bob",
+		"charlie",
+	)
+	question.SetAnswer(UnknownAnswer)
+	game.DoTurn(question)
+
+	//shrink to link
+	question = NewQuestion(
+		NewCard("peacock"),
+		NewCard("dagger"),
+		NewCard("living room"),
+		"THIS",
+		"charlie",
+	)
+	question.SetAnswer(WhatAnswer)
+	game.DoTurn(question)
+
+	//check
+	greenCard := lookupCard(t, game.whoCategory, "green")
+	daggerCard := lookupCard(t, game.whatCategory, "dagger")
+	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
+
+	greenLink := Link{
+		player: "charlie",
+		other:  bedroomCard,
+	}
+	bedroomLink := Link{
+		player: "charlie",
+		other:  greenCard,
+	}
+
+	if slices.Contains(greenCard.links, greenLink) {
+		t.Error("Game.analyseUnknownAnswer() TriLink was resolved to a normal link but shouldn't have been")
+	}
+	if slices.Contains(bedroomCard.links, bedroomLink) {
+		t.Error("Game.analyseUnknownAnswer() TriLink was resolved to a normal link but shouldn't have been")
+	}
+
+	greenTriLink := TriLink{
+		this:   greenCard,
+		player: "charlie",
+		other1: daggerCard,
+		other2: bedroomCard,
+	}
+	daggerTriLink := TriLink{
+		this:   daggerCard,
+		player: "charlie",
+		other1: greenCard,
+		other2: bedroomCard,
+	}
+	bedroomTriLink := TriLink{
+		this:   bedroomCard,
+		player: "charlie",
+		other1: daggerCard,
+		other2: greenCard,
+	}
+
+	if slices.ContainsFunc(greenCard.trilinks, func(t TriLink) bool { return greenTriLink.Equals(t) }) {
+		t.Error("The bedroom's trilink has served it's purpose but it wasn't removed")
+	}
+	if slices.ContainsFunc(daggerCard.trilinks, func(t TriLink) bool { return daggerTriLink.Equals(t) }) {
+		t.Error("The dagger's trilink has served it's purpose but it wasn't removed")
+	}
+	if slices.ContainsFunc(bedroomCard.trilinks, func(t TriLink) bool { return bedroomTriLink.Equals(t) }) {
+		t.Error("The bedroom's trilink has served it's purpose but it wasn't removed")
 	}
 }

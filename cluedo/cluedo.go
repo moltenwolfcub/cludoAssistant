@@ -8,6 +8,8 @@ import (
 )
 
 type TriLink struct {
+	this *Card
+
 	player Player
 	other1 *Card
 	other2 *Card
@@ -17,13 +19,24 @@ func (t TriLink) Equals(other TriLink) bool {
 	if t.player != other.player {
 		return false
 	}
-	if t.other1 == other.other1 && t.other2 == other.other2 {
-		return true
+	thisCards := []*Card{
+		t.this,
+		t.other1,
+		t.other2,
 	}
-	if t.other1 == other.other2 && t.other2 == other.other1 {
-		return true
+	otherCards := []*Card{
+		other.this,
+		other.other1,
+		other.other2,
 	}
-	return false
+
+	for _, c := range thisCards {
+		if !slices.Contains(otherCards, c) {
+			return false
+		}
+	}
+
+	return true
 }
 
 type Link struct {
@@ -54,22 +67,44 @@ func (c *Card) SetFound(possessor Player, destroyLinks bool) {
 	c.found = true
 	c.possessor = possessor
 
-	if !destroyLinks {
-		return
+	if destroyLinks {
+		for i, l := range c.links {
+			if l.player != possessor {
+				//set the other half of the link to found
+				l.other.SetFound(l.player, false)
+			}
+			//destroy the link as it's now redundant
+			for j := range l.other.links {
+				if l.other.links[j].other == c && l.other.links[j].player == l.player {
+					l.other.links = slices.Delete(l.other.links, j, j+1)
+					break
+				}
+			}
+			c.links = slices.Delete(c.links, i, i+1)
+		}
 	}
-	for i, l := range c.links {
-		if l.player != possessor {
-			//set the other half of the link to found
-			l.other.SetFound(l.player, false)
+
+	// resolve trilinks
+	for i, t := range c.trilinks {
+		if t.player != possessor {
+			//shrink the trilink to a normal link
+			t.other1.AddLink(t.player, t.other2)
+			t.other2.AddLink(t.player, t.other1)
 		}
 		//destroy the link as it's now redundant
-		for j := range l.other.links {
-			if l.other.links[j].other == c && l.other.links[j].player == l.player {
-				l.other.links = slices.Delete(l.other.links, j, j+1)
+		for j := range t.other1.trilinks {
+			if t.other1.trilinks[j].Equals(t) {
+				t.other1.trilinks = slices.Delete(t.other1.trilinks, j, j+1)
 				break
 			}
 		}
-		c.links = slices.Delete(c.links, i, i+1)
+		for j := range t.other2.trilinks {
+			if t.other2.trilinks[j].Equals(t) {
+				t.other2.trilinks = slices.Delete(t.other2.trilinks, j, j+1)
+				break
+			}
+		}
+		c.trilinks = slices.Delete(c.trilinks, i, i+1)
 	}
 }
 
@@ -94,6 +129,8 @@ func (c *Card) AddLink(player Player, other *Card) {
 
 func (c *Card) AddTriLink(player Player, one *Card, two *Card) {
 	newLink := TriLink{
+		this: c,
+
 		player: player,
 		other1: one,
 		other2: two,
