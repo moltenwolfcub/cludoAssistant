@@ -18,9 +18,9 @@ func GenSampleQuestionCategory() cluedo.QuestionCategory {
 func TestHasKnownSolutionWithSolution(t *testing.T) {
 	q := GenSampleQuestionCategory()
 
-	q.Cards[0].SetFound("", true)
-	q.Cards[1].SetFound("", true)
-	q.Cards[2].SetFound("", true)
+	q.Cards[0].SetFound(nil, true)
+	q.Cards[1].SetFound(nil, true)
+	q.Cards[2].SetFound(nil, true)
 
 	if !q.HasKnownSolution() {
 		t.Error("Question.HasKnownSolution() Couldn't find solution when there was one present.")
@@ -30,8 +30,8 @@ func TestHasKnownSolutionWithSolution(t *testing.T) {
 func TestHasKnownSolutionWithoutSolution(t *testing.T) {
 	q := GenSampleQuestionCategory()
 
-	q.Cards[0].SetFound("", true)
-	q.Cards[1].SetFound("", true)
+	q.Cards[0].SetFound(nil, true)
+	q.Cards[1].SetFound(nil, true)
 
 	if q.HasKnownSolution() {
 		t.Error("Question.HasKnownSolution() Found a solution when there were multiple options.")
@@ -41,34 +41,34 @@ func TestHasKnownSolutionWithoutSolution(t *testing.T) {
 func TestHasKnownSolutionWithoutOptions(t *testing.T) {
 	q := GenSampleQuestionCategory()
 
-	q.Cards[0].SetFound("", true)
-	q.Cards[1].SetFound("", true)
-	q.Cards[2].SetFound("", true)
-	q.Cards[3].SetFound("", true)
+	q.Cards[0].SetFound(nil, true)
+	q.Cards[1].SetFound(nil, true)
+	q.Cards[2].SetFound(nil, true)
+	q.Cards[3].SetFound(nil, true)
 
 	if q.HasKnownSolution() {
 		t.Error("Question.HasKnownSolution() Found a solution when there were no options left.")
 	}
 }
 
-func GenSampleGame() cluedo.Game {
-	players := []string{
-		"alice",
-		"bob",
-		"charlie",
-	}
-	return cluedo.NewDefaultGame(players)
+func GenSampleGame() (game cluedo.Game, a, b, c *cluedo.Player) {
+	a = cluedo.NewPlayer("alice", 0)
+	b = cluedo.NewPlayer("bob", 0)
+	c = cluedo.NewPlayer("charlie", 0)
+
+	game = cluedo.NewDefaultGame(a, b, c)
+	return
 }
 
 func TestEnsureValidQuestionWithValid(t *testing.T) {
-	game := GenSampleGame()
+	game, alice, _, _ := GenSampleGame()
 
 	question := cluedo.NewQuestion(
 		cluedo.NewCard("plum"),
 		cluedo.NewCard("dagger"),
 		cluedo.NewCard("study"),
-		cluedo.Player("THIS"),
-		cluedo.Player("alice"),
+		game.Me,
+		alice,
 	)
 
 	if !game.EnsureValidQuestion(question) {
@@ -77,14 +77,14 @@ func TestEnsureValidQuestionWithValid(t *testing.T) {
 }
 
 func TestEnsureValidQuestionWithInvalidQuestionComponents(t *testing.T) {
-	game := GenSampleGame()
+	game, alice, _, _ := GenSampleGame()
 
 	question := cluedo.NewQuestion(
 		cluedo.NewCard("eva smith"),
 		cluedo.NewCard("bleach"),
-		cluedo.NewCard("the factory"),
-		cluedo.Player("THIS"),
-		cluedo.Player("alice"),
+		cluedo.NewCard("infermary"),
+		game.Me,
+		alice,
 	)
 
 	if game.EnsureValidQuestion(question) {
@@ -93,14 +93,14 @@ func TestEnsureValidQuestionWithInvalidQuestionComponents(t *testing.T) {
 }
 
 func TestEnsureValidQuestionWithInvalidPlayers(t *testing.T) {
-	game := GenSampleGame()
+	game, _, _, _ := GenSampleGame()
 
 	question := cluedo.NewQuestion(
 		cluedo.NewCard("mustard"),
 		cluedo.NewCard("rope"),
 		cluedo.NewCard("kitchen"),
-		cluedo.Player("eric"),
-		cluedo.Player("inspector goole"),
+		cluedo.NewPlayer("eric", 0),
+		cluedo.NewPlayer("inspector goole", 0),
 	)
 
 	if game.EnsureValidQuestion(question) {

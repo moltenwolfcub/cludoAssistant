@@ -7,11 +7,15 @@ import (
 )
 
 func main() {
-	game := cluedo.NewDefaultGame([]string{
-		"alice",
-		"bob",
-		"charlie",
-	})
+	alice := cluedo.NewPlayer("alice", 0)
+	bob := cluedo.NewPlayer("bob", 0)
+	charlie := cluedo.NewPlayer("charlie", 0)
+
+	game := cluedo.NewDefaultGame(
+		alice,
+		bob,
+		charlie,
+	)
 	game.AddStartingHand(
 		[]*cluedo.Card{
 			cluedo.NewCard("peacock"),
@@ -27,8 +31,8 @@ func main() {
 			cluedo.NewCard("white"),
 			cluedo.NewCard("dagger"),
 			cluedo.NewCard("study"),
-			"THIS",
-			"alice",
+			game.Me,
+			alice,
 		),
 		cluedo.NoAnswer,
 	)
@@ -38,8 +42,8 @@ func main() {
 			cluedo.NewCard("white"),
 			cluedo.NewCard("dagger"),
 			cluedo.NewCard("study"),
-			"THIS",
-			"bob",
+			game.Me,
+			bob,
 		),
 		cluedo.NoAnswer,
 	)
@@ -49,8 +53,8 @@ func main() {
 			cluedo.NewCard("white"),
 			cluedo.NewCard("dagger"),
 			cluedo.NewCard("study"),
-			"THIS",
-			"charlie",
+			game.Me,
+			charlie,
 		),
 		cluedo.WhatAnswer,
 	)
@@ -61,8 +65,8 @@ func main() {
 			cluedo.NewCard("peacock"),
 			cluedo.NewCard("lead pipe"),
 			cluedo.NewCard("garage"),
-			"alice",
-			"bob",
+			alice,
+			bob,
 		),
 		cluedo.UnknownAnswer,
 	)
@@ -73,8 +77,8 @@ func main() {
 			cluedo.NewCard("mustard"),
 			cluedo.NewCard("lead pipe"),
 			cluedo.NewCard("kitchen"),
-			"bob",
-			"charlie",
+			bob,
+			charlie,
 		),
 		cluedo.NoAnswer,
 	)
@@ -84,8 +88,8 @@ func main() {
 			cluedo.NewCard("mustard"),
 			cluedo.NewCard("lead pipe"),
 			cluedo.NewCard("kitchen"),
-			"bob",
-			"THIS",
+			bob,
+			game.Me,
 		),
 		cluedo.NoAnswer,
 	)
@@ -95,8 +99,8 @@ func main() {
 			cluedo.NewCard("mustard"),
 			cluedo.NewCard("lead pipe"),
 			cluedo.NewCard("kitchen"),
-			"bob",
-			"alice",
+			bob,
+			alice,
 		),
 		cluedo.UnknownAnswer,
 	)

@@ -10,7 +10,7 @@ import (
 type TriLink struct {
 	this *Card
 
-	player Player
+	player *Player
 	other1 *Card
 	other2 *Card
 }
@@ -40,7 +40,7 @@ func (t TriLink) Equals(other TriLink) bool {
 }
 
 type Link struct {
-	player Player
+	player *Player
 	other  *Card
 }
 
@@ -48,9 +48,9 @@ type Card struct {
 	name string
 
 	found     bool
-	possessor Player
+	possessor *Player
 
-	nonPossessors []Player
+	nonPossessors []*Player
 
 	links    []Link
 	trilinks []TriLink
@@ -63,7 +63,7 @@ func NewCard(name string) *Card {
 	}
 }
 
-func (c *Card) SetFound(possessor Player, destroyLinks bool) {
+func (c *Card) SetFound(possessor *Player, destroyLinks bool) {
 	c.found = true
 	c.possessor = possessor
 
@@ -112,7 +112,7 @@ func (c Card) IsFound() bool {
 	return c.found
 }
 
-func (c *Card) AddNonPossessor(player Player) {
+func (c *Card) AddNonPossessor(player *Player) {
 	if slices.Contains(c.nonPossessors, player) {
 		return
 	}
@@ -120,7 +120,7 @@ func (c *Card) AddNonPossessor(player Player) {
 	c.nonPossessors = append(c.nonPossessors, player)
 }
 
-func (c *Card) AddLink(player Player, other *Card) {
+func (c *Card) AddLink(player *Player, other *Card) {
 	newLink := Link{
 		player: player,
 		other:  other,
@@ -131,7 +131,7 @@ func (c *Card) AddLink(player Player, other *Card) {
 	}
 }
 
-func (c *Card) AddTriLink(player Player, one *Card, two *Card) {
+func (c *Card) AddTriLink(player *Player, one *Card, two *Card) {
 	newLink := TriLink{
 		this: c,
 
@@ -165,7 +165,7 @@ func (q QuestionCategory) HasKnownSolution() bool {
 	return available == 1
 }
 
-func (q *QuestionCategory) FoundCard(card *Card, possessor Player) (success bool) {
+func (q *QuestionCategory) FoundCard(card *Card, possessor *Player) (success bool) {
 	for _, c := range q.Cards {
 		if card.name == c.name {
 			c.SetFound(possessor, true)
@@ -190,13 +190,13 @@ type Question struct {
 	whatPart  *Card
 	wherePart *Card
 
-	asker    Player
-	answerer Player
+	asker    *Player
+	answerer *Player
 
 	answer Answer
 }
 
-func NewQuestion(who, what, where *Card, asker, answerer Player) Question {
+func NewQuestion(who, what, where *Card, asker, answerer *Player) Question {
 	return Question{
 		whoPart:   who,
 		whatPart:  what,
@@ -210,17 +210,30 @@ func (q *Question) SetAnswer(a Answer) {
 	q.answer = a
 }
 
-type Player string
+type Player struct {
+	name      string
+	cardCount int
+}
+
+func NewPlayer(name string, count int) *Player {
+	return &Player{
+		name:      name,
+		cardCount: count,
+	}
+}
 
 type Game struct {
 	whoCategory   QuestionCategory
 	whatCategory  QuestionCategory
 	whereCategory QuestionCategory
 
-	players []Player
+	players []*Player
+	Me      *Player
 }
 
-func NewDefaultGame(otherPlayers []string) Game {
+const MeIdent = "ME"
+
+func NewDefaultGame(otherPlayers ...*Player) Game {
 	g := Game{
 		whoCategory: NewQuestionCategory(
 			NewCard("green"),
@@ -251,18 +264,19 @@ func NewDefaultGame(otherPlayers []string) Game {
 		),
 	}
 
-	g.players = append(g.players, "THIS")
-	for _, other := range otherPlayers {
-		p := Player(other)
+	g.Me = NewPlayer(MeIdent, 0)
 
-		if p == "THIS" {
-			panic("Can't have a player called `THIS`")
+	g.players = append(g.players, g.Me)
+	for _, player := range otherPlayers {
+
+		if player.name == MeIdent {
+			panic(fmt.Sprintf("Can't have a player called `%s`", MeIdent))
 		}
-		if slices.Contains(g.players, p) {
+		if slices.Contains(g.players, player) {
 			panic("Can't have 2 players with the same name")
 		}
 
-		g.players = append(g.players, p)
+		g.players = append(g.players, player)
 	}
 
 	return g
@@ -293,11 +307,11 @@ func (g Game) String() string {
 	columnSpacing := []int{longestCardNameLen, 3}
 
 	for _, player := range g.players {
-		if player == "THIS" {
+		if player.name == "THIS" {
 			continue
 		}
 		playerList += fmt.Sprintf(" %v |", player)
-		columnSpacing = append(columnSpacing, len(player))
+		columnSpacing = append(columnSpacing, len(player.name))
 	}
 
 	allColumnWidth := len(playerList)
@@ -342,8 +356,8 @@ func (g Game) String() string {
 
 			if card.IsFound() {
 				str += " "
-				if card.possessor != "THIS" {
-					str += string(card.possessor)
+				if card.possessor.name != "THIS" {
+					str += string(card.possessor.name)
 				} else {
 					str += "you"
 				}
@@ -359,31 +373,33 @@ func (g Game) String() string {
 
 func (g *Game) AddStartingHand(hand []*Card) {
 	for _, c := range hand {
-		if g.whoCategory.FoundCard(c, "THIS") {
+		if g.whoCategory.FoundCard(c, g.Me) {
 			continue
 		}
-		if g.whatCategory.FoundCard(c, "THIS") {
+		if g.whatCategory.FoundCard(c, g.Me) {
 			continue
 		}
-		if g.whereCategory.FoundCard(c, "THIS") {
+		if g.whereCategory.FoundCard(c, g.Me) {
 			continue
 		}
 		panic(fmt.Sprintf("Can't have card `%v` in hand because it's not in the game.", c.name))
 	}
 
+	g.Me.cardCount = len(hand)
+
 	for _, c := range g.whoCategory.Cards {
-		if c.possessor != "THIS" {
-			c.nonPossessors = append(c.nonPossessors, "THIS")
+		if c.possessor != g.Me {
+			c.nonPossessors = append(c.nonPossessors, g.Me)
 		}
 	}
 	for _, c := range g.whatCategory.Cards {
-		if c.possessor != "THIS" {
-			c.nonPossessors = append(c.nonPossessors, "THIS")
+		if c.possessor != g.Me {
+			c.nonPossessors = append(c.nonPossessors, g.Me)
 		}
 	}
 	for _, c := range g.whereCategory.Cards {
-		if c.possessor != "THIS" {
-			c.nonPossessors = append(c.nonPossessors, "THIS")
+		if c.possessor != g.Me {
+			c.nonPossessors = append(c.nonPossessors, g.Me)
 		}
 	}
 	g.UpdateNonPossessors()

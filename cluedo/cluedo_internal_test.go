@@ -16,24 +16,24 @@ func lookupCard(t *testing.T, category QuestionCategory, cardName string) (found
 	return nil
 }
 
-func GenSampleGame() Game {
-	players := []string{
-		"alice",
-		"bob",
-		"charlie",
-	}
-	return NewDefaultGame(players)
+func GenSampleGame() (game Game, a, b, c *Player) {
+	a = NewPlayer("alice", 0)
+	b = NewPlayer("bob", 0)
+	c = NewPlayer("charlie", 0)
+
+	game = NewDefaultGame(a, b, c)
+	return
 }
 
 func TestTurnWhoAnswerUpdatesFound(t *testing.T) {
-	game := GenSampleGame()
+	game, alice, _, _ := GenSampleGame()
 
 	question := NewQuestion(
 		NewCard("white"),
 		NewCard("pistol"),
 		NewCard("bedroom"),
-		"THIS",
-		"alice",
+		game.Me,
+		alice,
 	)
 	question.SetAnswer(WhoAnswer)
 
@@ -56,14 +56,14 @@ func TestTurnWhoAnswerUpdatesFound(t *testing.T) {
 }
 
 func TestTurnWhatAnswerUpdatesFound(t *testing.T) {
-	game := GenSampleGame()
+	game, alice, _, _ := GenSampleGame()
 
 	question := NewQuestion(
 		NewCard("white"),
 		NewCard("pistol"),
 		NewCard("bedroom"),
-		"THIS",
-		"alice",
+		game.Me,
+		alice,
 	)
 	question.SetAnswer(WhatAnswer)
 
@@ -86,14 +86,14 @@ func TestTurnWhatAnswerUpdatesFound(t *testing.T) {
 }
 
 func TestTurnWhereAnswerUpdatesFound(t *testing.T) {
-	game := GenSampleGame()
+	game, alice, _, _ := GenSampleGame()
 
 	question := NewQuestion(
 		NewCard("white"),
 		NewCard("pistol"),
 		NewCard("bedroom"),
-		"THIS",
-		"alice",
+		game.Me,
+		alice,
 	)
 	question.SetAnswer(WhereAnswer)
 
@@ -116,67 +116,67 @@ func TestTurnWhereAnswerUpdatesFound(t *testing.T) {
 }
 
 func TestTurnWhoAnswerPosessor(t *testing.T) {
-	game := GenSampleGame()
+	game, alice, _, _ := GenSampleGame()
 
 	question := NewQuestion(
 		NewCard("white"),
 		NewCard("pistol"),
 		NewCard("bedroom"),
-		"THIS",
-		"alice",
+		game.Me,
+		alice,
 	)
 	question.SetAnswer(WhoAnswer)
 
 	game.DoTurn(question)
 
 	whiteCard := lookupCard(t, game.whoCategory, "white")
-	if whiteCard.possessor != "alice" {
+	if whiteCard.possessor != alice {
 		t.Error("Game.DoTurn() Was shown a who card by alice but she wasn't marked as the owner of the card.")
 	}
 }
 
 func TestTurnWhatAnswerPosessor(t *testing.T) {
-	game := GenSampleGame()
+	game, alice, _, _ := GenSampleGame()
 
 	question := NewQuestion(
 		NewCard("white"),
 		NewCard("pistol"),
 		NewCard("bedroom"),
-		"THIS",
-		"alice",
+		game.Me,
+		alice,
 	)
 	question.SetAnswer(WhatAnswer)
 
 	game.DoTurn(question)
 
 	pistolCard := lookupCard(t, game.whatCategory, "pistol")
-	if pistolCard.possessor != "alice" {
+	if pistolCard.possessor != alice {
 		t.Error("Game.DoTurn() Was shown a what card by alice but she wasn't marked as the owner of the card.")
 	}
 }
 
 func TestTurnWhereAnswerPosessor(t *testing.T) {
-	game := GenSampleGame()
+	game, alice, _, _ := GenSampleGame()
 
 	question := NewQuestion(
 		NewCard("white"),
 		NewCard("pistol"),
 		NewCard("bedroom"),
-		"THIS",
-		"alice",
+		game.Me,
+		alice,
 	)
 	question.SetAnswer(WhereAnswer)
 
 	game.DoTurn(question)
 
 	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
-	if bedroomCard.possessor != "alice" {
+	if bedroomCard.possessor != alice {
 		t.Error("Game.DoTurn() Was shown a where card by alice but she wasn't marked as the owner of the card.")
 	}
 }
 
 func TestStartingHandOneCard(t *testing.T) {
-	game := GenSampleGame()
+	game, _, _, _ := GenSampleGame()
 	game.AddStartingHand(
 		[]*Card{NewCard("lead pipe")},
 	)
@@ -185,13 +185,13 @@ func TestStartingHandOneCard(t *testing.T) {
 	if !pipeCard.IsFound() {
 		t.Error("Game.AddStartingHand() Started with 1 card but it wasn't marked as found.")
 	}
-	if pipeCard.possessor != "THIS" {
+	if pipeCard.possessor != game.Me {
 		t.Error("Game.AddStartingHand() Started with 1 card but its owner wasn't THIS.")
 	}
 }
 
 func TestStartingHandMultipleCards(t *testing.T) {
-	game := GenSampleGame()
+	game, _, _, _ := GenSampleGame()
 	game.AddStartingHand([]*Card{
 		NewCard("wrench"),
 		NewCard("green"),
@@ -214,35 +214,35 @@ func TestStartingHandMultipleCards(t *testing.T) {
 }
 
 func TestTurnNonPossessor(t *testing.T) {
-	game := GenSampleGame()
+	game, alice, _, _ := GenSampleGame()
 
 	question := NewQuestion(
 		NewCard("white"),
 		NewCard("pistol"),
 		NewCard("bedroom"),
-		"THIS",
-		"alice",
+		game.Me,
+		alice,
 	)
 	question.SetAnswer(NoAnswer)
 
 	game.DoTurn(question)
 
 	whoCard := lookupCard(t, game.whoCategory, "white")
-	if !slices.Contains(whoCard.nonPossessors, "alice") {
+	if !slices.Contains(whoCard.nonPossessors, alice) {
 		t.Error("Game.DoTurn() Alice couldn't answer the question but she wasn't marked as not having the person")
 	}
 	whatCard := lookupCard(t, game.whatCategory, "pistol")
-	if !slices.Contains(whatCard.nonPossessors, "alice") {
+	if !slices.Contains(whatCard.nonPossessors, alice) {
 		t.Error("Game.DoTurn() Alice couldn't answer the question but she wasn't marked as not having the weapon")
 	}
 	whereCard := lookupCard(t, game.whereCategory, "bedroom")
-	if !slices.Contains(whereCard.nonPossessors, "alice") {
+	if !slices.Contains(whereCard.nonPossessors, alice) {
 		t.Error("Game.DoTurn() Alice couldn't answer the question but she wasn't marked as not having the location")
 	}
 }
 
 func TestUnkownAnswerWith2SimpleSelfKnown(t *testing.T) {
-	game := GenSampleGame()
+	game, alice, bob, _ := GenSampleGame()
 	game.AddStartingHand([]*Card{
 		NewCard("green"),
 		NewCard("dagger"),
@@ -252,28 +252,28 @@ func TestUnkownAnswerWith2SimpleSelfKnown(t *testing.T) {
 		NewCard("green"),
 		NewCard("dagger"),
 		NewCard("bedroom"),
-		"bob",
-		"alice",
+		bob,
+		alice,
 	)
 	question.SetAnswer(UnknownAnswer)
 
 	game.DoTurn(question)
 
 	whereCard := lookupCard(t, game.whereCategory, "bedroom")
-	if whereCard.possessor != "alice" {
+	if whereCard.possessor != alice {
 		t.Error("Game.analyseUnknownAnswer() I had 2 cards and alice showed a card when asked about them but the 3rd wasn't marked as hers.")
 	}
 }
 
 func TestUnkownAnswerWith2SimpleOthersKnown(t *testing.T) {
-	game := GenSampleGame()
+	game, alice, bob, charlie := GenSampleGame()
 
 	question := NewQuestion(
 		NewCard("green"),
 		NewCard("dagger"),
 		NewCard("bedroom"),
-		"THIS",
-		"alice",
+		game.Me,
+		alice,
 	)
 	question.SetAnswer(WhoAnswer)
 	game.DoTurn(question)
@@ -282,8 +282,8 @@ func TestUnkownAnswerWith2SimpleOthersKnown(t *testing.T) {
 		NewCard("green"),
 		NewCard("dagger"),
 		NewCard("bedroom"),
-		"THIS",
-		"bob",
+		game.Me,
+		bob,
 	)
 	question.SetAnswer(WhatAnswer)
 	game.DoTurn(question)
@@ -292,20 +292,20 @@ func TestUnkownAnswerWith2SimpleOthersKnown(t *testing.T) {
 		NewCard("green"),
 		NewCard("dagger"),
 		NewCard("bedroom"),
-		"bob",
-		"charlie",
+		bob,
+		charlie,
 	)
 	question.SetAnswer(UnknownAnswer)
 	game.DoTurn(question)
 
 	whereCard := lookupCard(t, game.whereCategory, "bedroom")
-	if whereCard.possessor != "charlie" {
+	if whereCard.possessor != charlie {
 		t.Error("Game.analyseUnknownAnswer() 2 cards were in known locations and charlie showed a card when asked about them but the 3rd wasn't marked as his.")
 	}
 }
 
 func TestUnkownAnswerWith2KnownsAssumptions(t *testing.T) {
-	game := GenSampleGame()
+	game, _, bob, charlie := GenSampleGame()
 	game.AddStartingHand([]*Card{
 		NewCard("green"),
 	})
@@ -314,8 +314,8 @@ func TestUnkownAnswerWith2KnownsAssumptions(t *testing.T) {
 		NewCard("green"),
 		NewCard("dagger"),
 		NewCard("bedroom"),
-		"THIS",
-		"charlie",
+		game.Me,
+		charlie,
 	)
 	question.SetAnswer(WhatAnswer)
 	game.DoTurn(question)
@@ -324,20 +324,20 @@ func TestUnkownAnswerWith2KnownsAssumptions(t *testing.T) {
 		NewCard("green"),
 		NewCard("dagger"),
 		NewCard("bedroom"),
-		"bob",
-		"charlie",
+		bob,
+		charlie,
 	)
 	question.SetAnswer(UnknownAnswer)
 	game.DoTurn(question)
 
 	whereCard := lookupCard(t, game.whereCategory, "bedroom")
-	if whereCard.possessor == "charlie" {
+	if whereCard.possessor == charlie {
 		t.Error("Game.analyseUnknownAnswer() 2 cards were in known locations but one was charlie's and charlie showed a card when asked about them and the 3rd was incorrectly assumed to have been shown.")
 	}
 }
 
 func TestUnkownAnswerWith1Known(t *testing.T) {
-	game := GenSampleGame()
+	game, _, bob, charlie := GenSampleGame()
 	game.AddStartingHand([]*Card{
 		NewCard("green"),
 	})
@@ -346,8 +346,8 @@ func TestUnkownAnswerWith1Known(t *testing.T) {
 		NewCard("green"),
 		NewCard("dagger"),
 		NewCard("bedroom"),
-		"bob",
-		"charlie",
+		bob,
+		charlie,
 	)
 	question.SetAnswer(UnknownAnswer)
 	game.DoTurn(question)
@@ -356,11 +356,11 @@ func TestUnkownAnswerWith1Known(t *testing.T) {
 	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
 
 	daggerLink := Link{
-		player: "charlie",
+		player: charlie,
 		other:  bedroomCard,
 	}
 	bedroomLink := Link{
-		player: "charlie",
+		player: charlie,
 		other:  daggerCard,
 	}
 
@@ -373,14 +373,14 @@ func TestUnkownAnswerWith1Known(t *testing.T) {
 }
 
 func TestUnkownAnswerWith0Knowns(t *testing.T) {
-	game := GenSampleGame()
+	game, _, bob, charlie := GenSampleGame()
 
 	question := NewQuestion(
 		NewCard("green"),
 		NewCard("dagger"),
 		NewCard("bedroom"),
-		"bob",
-		"charlie",
+		bob,
+		charlie,
 	)
 	question.SetAnswer(UnknownAnswer)
 	game.DoTurn(question)
@@ -391,19 +391,19 @@ func TestUnkownAnswerWith0Knowns(t *testing.T) {
 
 	greenLink := TriLink{
 		this:   greenCard,
-		player: "charlie",
+		player: charlie,
 		other1: bedroomCard,
 		other2: daggerCard,
 	}
 	daggerLink := TriLink{
 		this:   daggerCard,
-		player: "charlie",
+		player: charlie,
 		other1: bedroomCard,
 		other2: greenCard,
 	}
 	bedroomLink := TriLink{
 		this:   bedroomCard,
-		player: "charlie",
+		player: charlie,
 		other1: daggerCard,
 		other2: greenCard,
 	}
@@ -420,7 +420,7 @@ func TestUnkownAnswerWith0Knowns(t *testing.T) {
 }
 
 func TestLinkResolutionWithFind(t *testing.T) {
-	game := GenSampleGame()
+	game, alice, bob, charlie := GenSampleGame()
 	game.AddStartingHand([]*Card{
 		NewCard("green"),
 	})
@@ -429,8 +429,8 @@ func TestLinkResolutionWithFind(t *testing.T) {
 		NewCard("green"),
 		NewCard("dagger"),
 		NewCard("bedroom"),
-		"bob",
-		"charlie",
+		bob,
+		charlie,
 	)
 	question.SetAnswer(UnknownAnswer)
 	game.DoTurn(question)
@@ -439,8 +439,8 @@ func TestLinkResolutionWithFind(t *testing.T) {
 		NewCard("peacock"),
 		NewCard("dagger"),
 		NewCard("living room"),
-		"THIS",
-		"alice",
+		game.Me,
+		alice,
 	)
 	question.SetAnswer(WhatAnswer)
 	game.DoTurn(question)
@@ -451,16 +451,16 @@ func TestLinkResolutionWithFind(t *testing.T) {
 	if !bedroomCard.IsFound() {
 		t.Error("Charlie had either the bedroom or the dagger and we know alice has the dagger but the bedroom wasn't marked as found")
 	}
-	if bedroomCard.possessor != "charlie" {
+	if bedroomCard.possessor != charlie {
 		t.Error("Charlie had either the bedroom or the dagger and we know alice has the dagger but charlie wasn't the possessor of the bedroom")
 	}
 
 	daggerLink := Link{
-		player: "charlie",
+		player: charlie,
 		other:  bedroomCard,
 	}
 	bedroomLink := Link{
-		player: "charlie",
+		player: charlie,
 		other:  daggerCard,
 	}
 	if slices.Contains(daggerCard.links, daggerLink) {
@@ -472,7 +472,7 @@ func TestLinkResolutionWithFind(t *testing.T) {
 }
 
 func TestLinkResolutionWithoutFind(t *testing.T) {
-	game := GenSampleGame()
+	game, _, bob, charlie := GenSampleGame()
 	game.AddStartingHand([]*Card{
 		NewCard("green"),
 	})
@@ -481,8 +481,8 @@ func TestLinkResolutionWithoutFind(t *testing.T) {
 		NewCard("green"),
 		NewCard("dagger"),
 		NewCard("bedroom"),
-		"bob",
-		"charlie",
+		bob,
+		charlie,
 	)
 	question.SetAnswer(UnknownAnswer)
 	game.DoTurn(question)
@@ -491,8 +491,8 @@ func TestLinkResolutionWithoutFind(t *testing.T) {
 		NewCard("peacock"),
 		NewCard("dagger"),
 		NewCard("living room"),
-		"THIS",
-		"charlie",
+		game.Me,
+		charlie,
 	)
 	question.SetAnswer(WhatAnswer)
 	game.DoTurn(question)
@@ -505,11 +505,11 @@ func TestLinkResolutionWithoutFind(t *testing.T) {
 	}
 
 	daggerLink := Link{
-		player: "charlie",
+		player: charlie,
 		other:  bedroomCard,
 	}
 	bedroomLink := Link{
-		player: "charlie",
+		player: charlie,
 		other:  daggerCard,
 	}
 	if slices.Contains(daggerCard.links, daggerLink) {
@@ -521,15 +521,15 @@ func TestLinkResolutionWithoutFind(t *testing.T) {
 }
 
 func TestTriLinkResolutionWithFind(t *testing.T) {
-	game := GenSampleGame()
+	game, alice, bob, charlie := GenSampleGame()
 
 	//create trilink
 	question := NewQuestion(
 		NewCard("green"),
 		NewCard("dagger"),
 		NewCard("bedroom"),
-		"bob",
-		"charlie",
+		bob,
+		charlie,
 	)
 	question.SetAnswer(UnknownAnswer)
 	game.DoTurn(question)
@@ -539,8 +539,8 @@ func TestTriLinkResolutionWithFind(t *testing.T) {
 		NewCard("peacock"),
 		NewCard("dagger"),
 		NewCard("living room"),
-		"THIS",
-		"alice",
+		game.Me,
+		alice,
 	)
 	question.SetAnswer(WhatAnswer)
 	game.DoTurn(question)
@@ -551,11 +551,11 @@ func TestTriLinkResolutionWithFind(t *testing.T) {
 	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
 
 	greenLink := Link{
-		player: "charlie",
+		player: charlie,
 		other:  bedroomCard,
 	}
 	bedroomLink := Link{
-		player: "charlie",
+		player: charlie,
 		other:  greenCard,
 	}
 
@@ -568,19 +568,19 @@ func TestTriLinkResolutionWithFind(t *testing.T) {
 
 	greenTriLink := TriLink{
 		this:   greenCard,
-		player: "charlie",
+		player: charlie,
 		other1: daggerCard,
 		other2: bedroomCard,
 	}
 	daggerTriLink := TriLink{
 		this:   daggerCard,
-		player: "charlie",
+		player: charlie,
 		other1: greenCard,
 		other2: bedroomCard,
 	}
 	bedroomTriLink := TriLink{
 		this:   bedroomCard,
-		player: "charlie",
+		player: charlie,
 		other1: daggerCard,
 		other2: greenCard,
 	}
@@ -597,15 +597,15 @@ func TestTriLinkResolutionWithFind(t *testing.T) {
 }
 
 func TestTriLinkResolutionWithoutFind(t *testing.T) {
-	game := GenSampleGame()
+	game, _, bob, charlie := GenSampleGame()
 
 	//create trilink
 	question := NewQuestion(
 		NewCard("green"),
 		NewCard("dagger"),
 		NewCard("bedroom"),
-		"bob",
-		"charlie",
+		bob,
+		charlie,
 	)
 	question.SetAnswer(UnknownAnswer)
 	game.DoTurn(question)
@@ -615,8 +615,8 @@ func TestTriLinkResolutionWithoutFind(t *testing.T) {
 		NewCard("peacock"),
 		NewCard("dagger"),
 		NewCard("living room"),
-		"THIS",
-		"charlie",
+		game.Me,
+		charlie,
 	)
 	question.SetAnswer(WhatAnswer)
 	game.DoTurn(question)
@@ -627,11 +627,11 @@ func TestTriLinkResolutionWithoutFind(t *testing.T) {
 	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
 
 	greenLink := Link{
-		player: "charlie",
+		player: charlie,
 		other:  bedroomCard,
 	}
 	bedroomLink := Link{
-		player: "charlie",
+		player: charlie,
 		other:  greenCard,
 	}
 
@@ -644,19 +644,19 @@ func TestTriLinkResolutionWithoutFind(t *testing.T) {
 
 	greenTriLink := TriLink{
 		this:   greenCard,
-		player: "charlie",
+		player: charlie,
 		other1: daggerCard,
 		other2: bedroomCard,
 	}
 	daggerTriLink := TriLink{
 		this:   daggerCard,
-		player: "charlie",
+		player: charlie,
 		other1: greenCard,
 		other2: bedroomCard,
 	}
 	bedroomTriLink := TriLink{
 		this:   bedroomCard,
-		player: "charlie",
+		player: charlie,
 		other1: daggerCard,
 		other2: greenCard,
 	}
