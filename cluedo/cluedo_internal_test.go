@@ -372,6 +372,50 @@ func TestUnkownAnswerWith1Known(t *testing.T) {
 	}
 }
 
+func TestUnkownAnswerWith0Knowns(t *testing.T) {
+	game := GenSampleGame()
+
+	question := NewQuestion(
+		NewCard("green"),
+		NewCard("dagger"),
+		NewCard("bedroom"),
+		"bob",
+		"charlie",
+	)
+	question.SetAnswer(UnknownAnswer)
+	game.DoTurn(question)
+
+	greenCard := lookupCard(t, game.whoCategory, "green")
+	daggerCard := lookupCard(t, game.whatCategory, "dagger")
+	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
+
+	greenLink := TriLink{
+		player: "charlie",
+		other1: bedroomCard,
+		other2: daggerCard,
+	}
+	daggerLink := TriLink{
+		player: "charlie",
+		other1: bedroomCard,
+		other2: greenCard,
+	}
+	bedroomLink := TriLink{
+		player: "charlie",
+		other1: daggerCard,
+		other2: greenCard,
+	}
+
+	if !slices.ContainsFunc(greenCard.trilinks, func(t TriLink) bool { return t.Equals(greenLink) }) {
+		t.Error("Game.analyseUnknownAnswer() no card was in a known location but Green didn't have Dagger and Bedroom as a trilink")
+	}
+	if !slices.ContainsFunc(daggerCard.trilinks, func(t TriLink) bool { return t.Equals(daggerLink) }) {
+		t.Error("Game.analyseUnknownAnswer() no card was in a known location but Dagger didn't have Bedroom and Green as a trilink")
+	}
+	if !slices.ContainsFunc(bedroomCard.trilinks, func(t TriLink) bool { return t.Equals(bedroomLink) }) {
+		t.Error("Game.analyseUnknownAnswer() no card was in a known location but Bedroom didn't have Green and Dagger as a trilink")
+	}
+}
+
 func TestLinkResolutionWithFind(t *testing.T) {
 	game := GenSampleGame()
 	game.AddStartingHand([]*Card{

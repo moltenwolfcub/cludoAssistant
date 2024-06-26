@@ -7,6 +7,25 @@ import (
 	"strings"
 )
 
+type TriLink struct {
+	player Player
+	other1 *Card
+	other2 *Card
+}
+
+func (t TriLink) Equals(other TriLink) bool {
+	if t.player != other.player {
+		return false
+	}
+	if t.other1 == other.other1 && t.other2 == other.other2 {
+		return true
+	}
+	if t.other1 == other.other2 && t.other2 == other.other1 {
+		return true
+	}
+	return false
+}
+
 type Link struct {
 	player Player
 	other  *Card
@@ -20,7 +39,8 @@ type Card struct {
 
 	nonPossessors []Player
 
-	links []Link
+	links    []Link
+	trilinks []TriLink
 }
 
 func NewCard(name string) *Card {
@@ -69,6 +89,18 @@ func (c *Card) AddLink(player Player, other *Card) {
 
 	if !slices.Contains(c.links, newLink) {
 		c.links = append(c.links, newLink)
+	}
+}
+
+func (c *Card) AddTriLink(player Player, one *Card, two *Card) {
+	newLink := TriLink{
+		player: player,
+		other1: one,
+		other2: two,
+	}
+
+	if !slices.Contains(c.trilinks, newLink) {
+		c.trilinks = append(c.trilinks, newLink)
 	}
 }
 
@@ -432,6 +464,11 @@ func (g *Game) analyseUnknownAnswer(question Question) {
 		return
 	}
 
+	// if we already know the answerer has one of the cards in question we can't gather any useful information
+	if gameWho.possessor == question.answerer || gameWhat.possessor == question.answerer || gameWhere.possessor == question.answerer {
+		return
+	}
+
 	// i know the card isn't owned by the answerer
 	whoFound := gameWho.IsFound() && gameWho.possessor != question.answerer
 	whatFound := gameWhat.IsFound() && gameWhat.possessor != question.answerer
@@ -466,5 +503,12 @@ func (g *Game) analyseUnknownAnswer(question Question) {
 		gameWho.AddLink(question.answerer, gameWhat)
 		gameWhat.AddLink(question.answerer, gameWho)
 		return
+	}
+
+	// no knowns from question
+	if !(whoFound || whatFound || whereFound) {
+		gameWho.AddTriLink(question.answerer, gameWhat, gameWhere)
+		gameWhat.AddTriLink(question.answerer, gameWho, gameWhere)
+		gameWhere.AddTriLink(question.answerer, gameWhat, gameWho)
 	}
 }
