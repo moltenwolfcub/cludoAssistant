@@ -310,85 +310,48 @@ func (g Game) String() string {
 	// player list
 	str += playerList + "\n"
 
-	// WHO
-	str += "WHO " + strings.Repeat("=", allColumnWidth-4) + "\n"
-	for _, card := range g.whoCategory.Cards {
-		str += fmt.Sprintf("| %s%s |", card.name, strings.Repeat(" ", columnSpacing[0]-len(card.name)))
-
-		for i, width := range columnSpacing {
-			if i == 0 {
-				continue
-			}
-
-			str += " "
-
-			if card.possessor == g.players[i-1] {
-				str += "✓"
-			} else if slices.Contains(card.nonPossessors, g.players[i-1]) {
-				str += "x"
-			} else {
-				str += " "
-			}
-
-			str += strings.Repeat(" ", width)
-			str += "|"
-		}
-
-		str += "\n"
+	sections := map[string][]*Card{
+		"WHO ":   g.whoCategory.Cards,
+		"WHAT ":  g.whatCategory.Cards,
+		"WHERE ": g.whereCategory.Cards,
 	}
 
-	// WHAT
-	str += "WHAT " + strings.Repeat("=", allColumnWidth-5) + "\n"
-	for _, card := range g.whatCategory.Cards {
-		str += fmt.Sprintf("| %s%s |", card.name, strings.Repeat(" ", columnSpacing[0]-len(card.name)))
+	for title, cards := range sections {
+		str += title + strings.Repeat("=", allColumnWidth-len(title)) + "\n"
+		for _, card := range cards {
+			str += fmt.Sprintf("| %s%s |", card.name, strings.Repeat(" ", columnSpacing[0]-len(card.name)))
 
-		for i, width := range columnSpacing {
-			if i == 0 {
-				continue
-			}
+			for i, width := range columnSpacing {
+				if i == 0 {
+					continue
+				}
 
-			str += " "
-
-			if card.possessor == g.players[i-1] {
-				str += "✓"
-			} else if slices.Contains(card.nonPossessors, g.players[i-1]) {
-				str += "x"
-			} else {
 				str += " "
+
+				if card.possessor == g.players[i-1] {
+					str += "✓"
+				} else if slices.Contains(card.nonPossessors, g.players[i-1]) {
+					str += "x"
+				} else {
+					str += " "
+				}
+
+				str += strings.Repeat(" ", width)
+				str += "|"
 			}
 
-			str += strings.Repeat(" ", width)
-			str += "|"
+			if card.IsFound() {
+				str += " "
+				if card.possessor != "THIS" {
+					str += string(card.possessor)
+				} else {
+					str += "you"
+				}
+			}
+
+			str += "\n"
 		}
 
-		str += "\n"
-	}
-
-	// WHERE
-	str += "WHERE " + strings.Repeat("=", allColumnWidth-6) + "\n"
-	for _, card := range g.whereCategory.Cards {
-		str += fmt.Sprintf("| %s%s |", card.name, strings.Repeat(" ", columnSpacing[0]-len(card.name)))
-
-		for i, width := range columnSpacing {
-			if i == 0 {
-				continue
-			}
-
-			str += " "
-
-			if card.possessor == g.players[i-1] {
-				str += "✓"
-			} else if slices.Contains(card.nonPossessors, g.players[i-1]) {
-				str += "x"
-			} else {
-				str += " "
-			}
-
-			str += strings.Repeat(" ", width)
-			str += "|"
-		}
-
-		str += "\n"
 	}
 
 	return str
