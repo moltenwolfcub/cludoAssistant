@@ -6,8 +6,8 @@ import (
 	"github.com/moltenwolfcub/cluedoAssistant/cluedo"
 )
 
-func GenSampleQuestionCategory() cluedo.QuestionCategory {
-	return cluedo.NewQuestionCategory(
+func GenSampleCardCategory() cluedo.CardCategory {
+	return cluedo.NewCardCategory(
 		cluedo.NewCard("Zero"),
 		cluedo.NewCard("One"),
 		cluedo.NewCard("two"),
@@ -16,7 +16,7 @@ func GenSampleQuestionCategory() cluedo.QuestionCategory {
 }
 
 func TestHasKnownSolutionWithSolution(t *testing.T) {
-	q := GenSampleQuestionCategory()
+	q := GenSampleCardCategory()
 
 	q.Cards[0].SetFound(nil, true)
 	q.Cards[1].SetFound(nil, true)
@@ -28,7 +28,7 @@ func TestHasKnownSolutionWithSolution(t *testing.T) {
 }
 
 func TestHasKnownSolutionWithoutSolution(t *testing.T) {
-	q := GenSampleQuestionCategory()
+	q := GenSampleCardCategory()
 
 	q.Cards[0].SetFound(nil, true)
 	q.Cards[1].SetFound(nil, true)
@@ -39,7 +39,7 @@ func TestHasKnownSolutionWithoutSolution(t *testing.T) {
 }
 
 func TestHasKnownSolutionWithoutOptions(t *testing.T) {
-	q := GenSampleQuestionCategory()
+	q := GenSampleCardCategory()
 
 	q.Cards[0].SetFound(nil, true)
 	q.Cards[1].SetFound(nil, true)

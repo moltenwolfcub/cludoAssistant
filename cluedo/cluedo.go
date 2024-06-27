@@ -7,36 +7,6 @@ import (
 	"strings"
 )
 
-type QuestionCategory struct {
-	Cards []*Card
-}
-
-func NewQuestionCategory(cards ...*Card) QuestionCategory {
-	return QuestionCategory{
-		Cards: cards,
-	}
-}
-
-func (q QuestionCategory) HasKnownSolution() bool {
-	var available int
-	for _, c := range q.Cards {
-		if !c.found {
-			available++
-		}
-	}
-	return available == 1
-}
-
-func (q *QuestionCategory) FoundCard(card *Card, possessor *Player) (success bool) {
-	for _, c := range q.Cards {
-		if card.name == c.name {
-			c.SetFound(possessor, true)
-			return true
-		}
-	}
-	return false
-}
-
 type Answer int
 
 const (
@@ -85,9 +55,9 @@ func NewPlayer(name string, count int) *Player {
 }
 
 type Game struct {
-	whoCategory   QuestionCategory
-	whatCategory  QuestionCategory
-	whereCategory QuestionCategory
+	whoCategory   CardCategory
+	whatCategory  CardCategory
+	whereCategory CardCategory
 
 	players []*Player
 	Me      *Player
@@ -97,7 +67,7 @@ const MeIdent = "ME"
 
 func NewDefaultGame(otherPlayers ...*Player) Game {
 	g := Game{
-		whoCategory: NewQuestionCategory(
+		whoCategory: NewCardCategory(
 			NewCard("green"),
 			NewCard("mustard"),
 			NewCard("peacock"),
@@ -105,7 +75,7 @@ func NewDefaultGame(otherPlayers ...*Player) Game {
 			NewCard("scarlet"),
 			NewCard("white"),
 		),
-		whatCategory: NewQuestionCategory(
+		whatCategory: NewCardCategory(
 			NewCard("wrench"),
 			NewCard("candlestick"),
 			NewCard("dagger"),
@@ -113,7 +83,7 @@ func NewDefaultGame(otherPlayers ...*Player) Game {
 			NewCard("lead pipe"),
 			NewCard("rope"),
 		),
-		whereCategory: NewQuestionCategory(
+		whereCategory: NewCardCategory(
 			NewCard("bathroom"),
 			NewCard("study"),
 			NewCard("dining room"),

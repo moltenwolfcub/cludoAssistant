@@ -139,3 +139,33 @@ func (t TriLink) Equals(other TriLink) bool {
 
 	return true
 }
+
+type CardCategory struct {
+	Cards []*Card
+}
+
+func NewCardCategory(cards ...*Card) CardCategory {
+	return CardCategory{
+		Cards: cards,
+	}
+}
+
+func (q CardCategory) HasKnownSolution() bool {
+	var available int
+	for _, c := range q.Cards {
+		if !c.found {
+			available++
+		}
+	}
+	return available == 1
+}
+
+func (q *CardCategory) FoundCard(card *Card, possessor *Player) (success bool) {
+	for _, c := range q.Cards {
+		if card.name == c.name {
+			c.SetFound(possessor, true)
+			return true
+		}
+	}
+	return false
+}

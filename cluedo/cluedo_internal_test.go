@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func lookupCard(t *testing.T, category QuestionCategory, cardName string) (found *Card) {
+func lookupCard(t *testing.T, category CardCategory, cardName string) (found *Card) {
 	for _, c := range category.Cards {
 		if c.name == cardName {
 			found = c
