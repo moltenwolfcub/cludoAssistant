@@ -7,9 +7,9 @@ import (
 )
 
 func main() {
-	alice := cluedo.NewPlayer("alice", 0)
-	bob := cluedo.NewPlayer("bob", 0)
-	charlie := cluedo.NewPlayer("charlie", 0)
+	alice := cluedo.NewPlayer("alice", 5)
+	bob := cluedo.NewPlayer("bob", 5)
+	charlie := cluedo.NewPlayer("charlie", 4)
 
 	game := cluedo.NewDefaultGame(
 		alice,
@@ -103,6 +103,75 @@ func main() {
 			alice,
 		),
 		cluedo.UnknownAnswer,
+	)
+
+	AskQuestion(
+		game,
+		cluedo.NewQuestion(
+			cluedo.NewCard("peacock"),
+			cluedo.NewCard("rope"),
+			cluedo.NewCard("bathroom"),
+			charlie,
+			game.Me,
+		),
+		cluedo.WhereAnswer,
+	)
+
+	AskQuestion(
+		game,
+		cluedo.NewQuestion(
+			cluedo.NewCard("mustard"),
+			cluedo.NewCard("lead pipe"),
+			cluedo.NewCard("kitchen"),
+			game.Me,
+			alice,
+		),
+		cluedo.WhatAnswer,
+	)
+
+	AskQuestion(
+		game,
+		cluedo.NewQuestion(
+			cluedo.NewCard("white"),
+			cluedo.NewCard("wrench"),
+			cluedo.NewCard("courtyard"),
+			game.Me,
+			alice,
+		),
+		cluedo.WhereAnswer,
+	)
+	AskQuestion(
+		game,
+		cluedo.NewQuestion(
+			cluedo.NewCard("white"),
+			cluedo.NewCard("wrench"),
+			cluedo.NewCard("dining room"),
+			game.Me,
+			alice,
+		),
+		cluedo.WhereAnswer,
+	)
+	AskQuestion(
+		game,
+		cluedo.NewQuestion(
+			cluedo.NewCard("green"),
+			cluedo.NewCard("wrench"),
+			cluedo.NewCard("dining room"),
+			game.Me,
+			alice,
+		),
+		cluedo.WhoAnswer,
+	)
+	AskQuestion(
+		game,
+		cluedo.NewQuestion(
+			cluedo.NewCard("green"),
+			cluedo.NewCard("pistol"),
+			cluedo.NewCard("dining room"),
+			game.Me,
+			alice,
+		),
+		cluedo.WhatAnswer,
 	)
 
 	fmt.Println(game)

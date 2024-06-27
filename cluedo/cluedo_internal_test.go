@@ -17,9 +17,9 @@ func lookupCard(t *testing.T, category CardCategory, cardName string) (found *Ca
 }
 
 func GenSampleGame() (game Game, a, b, c *Player) {
-	a = NewPlayer("alice", 0)
-	b = NewPlayer("bob", 0)
-	c = NewPlayer("charlie", 0)
+	a = NewPlayer("alice", 4)
+	b = NewPlayer("bob", 4)
+	c = NewPlayer("charlie", 4)
 
 	game = NewDefaultGame(a, b, c)
 	return
@@ -669,5 +669,54 @@ func TestTriLinkResolutionWithoutFind(t *testing.T) {
 	}
 	if slices.ContainsFunc(bedroomCard.trilinks, func(t TriLink) bool { return bedroomTriLink.Equals(t) }) {
 		t.Error("The bedroom's trilink has served it's purpose but it wasn't removed")
+	}
+}
+
+func TestCompletePlayer(t *testing.T) {
+	game, alice, _, _ := GenSampleGame()
+
+	question := NewQuestion(
+		NewCard("green"),
+		NewCard("dagger"),
+		NewCard("bedroom"),
+		game.Me,
+		alice,
+	)
+	question.SetAnswer(WhoAnswer)
+	game.DoTurn(question)
+
+	question = NewQuestion(
+		NewCard("scarlet"),
+		NewCard("dagger"),
+		NewCard("bedroom"),
+		game.Me,
+		alice,
+	)
+	question.SetAnswer(WhoAnswer)
+	game.DoTurn(question)
+
+	question = NewQuestion(
+		NewCard("peacock"),
+		NewCard("dagger"),
+		NewCard("bedroom"),
+		game.Me,
+		alice,
+	)
+	question.SetAnswer(WhoAnswer)
+	game.DoTurn(question)
+
+	question = NewQuestion(
+		NewCard("mustard"),
+		NewCard("dagger"),
+		NewCard("bedroom"),
+		game.Me,
+		alice,
+	)
+	question.SetAnswer(WhereAnswer)
+	game.DoTurn(question)
+
+	candlestickCard := lookupCard(t, game.whatCategory, "candlestick")
+	if !slices.Contains(candlestickCard.nonPossessors, alice) {
+		t.Error("I know all of Alice's cards but other cards aren't marked as not hers")
 	}
 }

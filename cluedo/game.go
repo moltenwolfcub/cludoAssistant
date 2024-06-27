@@ -156,6 +156,14 @@ func (g Game) String() string {
 	return str
 }
 
+func (g Game) GetAllCards() []*Card {
+	allCards := []*Card{}
+	allCards = append(allCards, g.whoCategory.Cards...)
+	allCards = append(allCards, g.whatCategory.Cards...)
+	allCards = append(allCards, g.whereCategory.Cards...)
+	return allCards
+}
+
 func (g *Game) AddStartingHand(hand []*Card) {
 	for _, c := range hand {
 		if g.whoCategory.FoundCard(c, g.Me) {
@@ -191,10 +199,7 @@ func (g *Game) AddStartingHand(hand []*Card) {
 }
 
 func (g *Game) UpdateNonPossessors() {
-	allCards := []*Card{}
-	allCards = append(allCards, g.whoCategory.Cards...)
-	allCards = append(allCards, g.whatCategory.Cards...)
-	allCards = append(allCards, g.whereCategory.Cards...)
+	allCards := g.GetAllCards()
 
 	for _, c := range allCards {
 		if !c.IsFound() {
@@ -205,6 +210,38 @@ func (g *Game) UpdateNonPossessors() {
 				continue
 			}
 			c.AddNonPossessor(p)
+		}
+	}
+	g.UpdateCompletePlayers()
+}
+
+func (g *Game) UpdateCompletePlayers() {
+	allCards := g.GetAllCards()
+
+	for _, player := range g.players {
+		if player == g.Me {
+			continue
+		}
+
+		foundCardCount := 0
+		for _, c := range allCards {
+			if !c.IsFound() {
+				continue
+			}
+			if c.possessor == player {
+				foundCardCount++
+			}
+		}
+
+		if foundCardCount != player.cardCount {
+			continue
+		}
+
+		for _, c := range allCards {
+			if c.possessor == player {
+				continue
+			}
+			c.AddNonPossessor(player)
 		}
 	}
 }
