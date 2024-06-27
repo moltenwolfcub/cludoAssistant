@@ -269,6 +269,11 @@ func (g Game) EnsureValidQuestion(question Question) bool {
 func (g *Game) DoTurn(question Question) {
 	g.EnsureValidQuestion(question)
 
+	// we already know our own cards so don't need to analyse
+	if question.answerer == g.Me {
+		return
+	}
+
 	switch question.answer {
 	case UnknownAnswer:
 		g.analyseUnknownAnswer(question)
