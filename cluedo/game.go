@@ -99,14 +99,8 @@ func (g Game) String() string {
 	// player list
 	str += playerList + "\n"
 
-	sections := map[string][]*Card{
-		"WHO ":   g.whoCategory.Cards,
-		"WHAT ":  g.whatCategory.Cards,
-		"WHERE ": g.whereCategory.Cards,
-	}
-
-	for title, cards := range sections {
-		str += title + strings.Repeat("=", allColumnWidth-len(title)) + "\n"
+	renderCategory := func(title string, cards []*Card) {
+		str += title + " " + strings.Repeat("=", allColumnWidth-len(title)-1) + "\n"
 		for _, card := range cards {
 			str += fmt.Sprintf("| %s%s |", card.name, strings.Repeat(" ", columnSpacing[0]-len(card.name)))
 
@@ -140,8 +134,11 @@ func (g Game) String() string {
 
 			str += "\n"
 		}
-
 	}
+
+	renderCategory("WHO", g.whoCategory.Cards)
+	renderCategory("WHAT", g.whatCategory.Cards)
+	renderCategory("WHERE", g.whereCategory.Cards)
 
 	return str
 }
