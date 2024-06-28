@@ -224,25 +224,40 @@ func (g *Game) UpdateCompletePlayers() {
 		}
 
 		foundCardCount := 0
+		unfoundCardCount := 0
+		unknownCards := []*Card{}
+
 		for _, c := range allCards {
-			if !c.IsFound() {
-				continue
+			if slices.Contains(c.nonPossessors, player) {
+				unfoundCardCount++
+			} else if c.IsFound() {
+				if c.possessor == player {
+					foundCardCount++
+				}
 			}
-			if c.possessor == player {
-				foundCardCount++
+
+			if !slices.Contains(c.nonPossessors, player) && c.possessor != player {
+				unknownCards = append(unknownCards, c)
 			}
 		}
 
-		if foundCardCount != player.cardCount {
-			continue
+		if foundCardCount == player.cardCount {
+			for _, c := range allCards {
+				if c.possessor == player {
+					continue
+				}
+				c.AddNonPossessor(player)
+			}
+		} else {
+			cardsLeftToFind := player.cardCount - foundCardCount
+
+			if len(unknownCards) == cardsLeftToFind {
+				for _, c := range unknownCards {
+					c.SetFound(player, true)
+				}
+			}
 		}
 
-		for _, c := range allCards {
-			if c.possessor == player {
-				continue
-			}
-			c.AddNonPossessor(player)
-		}
 	}
 }
 

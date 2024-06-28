@@ -720,3 +720,46 @@ func TestCompletePlayer(t *testing.T) {
 		t.Error("I know all of Alice's cards but other cards aren't marked as not hers")
 	}
 }
+
+func TestAllNonPossessorsFound(t *testing.T) {
+	game, alice, _, _ := GenSampleGame()
+
+	for _, c := range game.whoCategory.Cards {
+		c.AddNonPossessor(alice)
+	}
+	for _, c := range game.whereCategory.Cards {
+		c.AddNonPossessor(alice)
+	}
+	lookupCard(t, game.whatCategory, "wrench").AddNonPossessor(alice)
+	lookupCard(t, game.whatCategory, "dagger").AddNonPossessor(alice)
+
+	game.UpdateNonPossessors()
+
+	pistolCard := lookupCard(t, game.whatCategory, "pistol")
+	if !pistolCard.IsFound() || pistolCard.possessor != alice {
+		t.Error("We know alice has 4 cards and we know she doesn't have all the cards except for 4. The pistol wasn't marked as found")
+	}
+}
+
+func TestAllNonPossessorsFoundWithKnowns(t *testing.T) {
+	game, alice, _, _ := GenSampleGame()
+
+	for _, c := range game.whoCategory.Cards {
+		c.AddNonPossessor(alice)
+	}
+	for _, c := range game.whereCategory.Cards {
+		c.AddNonPossessor(alice)
+	}
+	lookupCard(t, game.whatCategory, "wrench").AddNonPossessor(alice)
+	lookupCard(t, game.whatCategory, "dagger").AddNonPossessor(alice)
+
+	lookupCard(t, game.whatCategory, "candlestick").SetFound(alice, true)
+	lookupCard(t, game.whatCategory, "rope").SetFound(alice, true)
+
+	game.UpdateNonPossessors()
+
+	pistolCard := lookupCard(t, game.whatCategory, "pistol")
+	if !pistolCard.IsFound() || pistolCard.possessor != alice {
+		t.Error("We know alice has 4 cards and we know she doesn't have all the cards except for 4 and has 2 cards. The pistol wasn't marked as found.")
+	}
+}
