@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-func lookupCard(t *testing.T, category CardCategory, cardName string) (found *Card) {
-	for _, c := range category.Cards {
+func lookupCard(t *testing.T, game Game, cardName string) (found *Card) {
+	for _, c := range game.GetAllCards() {
 		if c.name == cardName {
 			found = c
 			return
@@ -39,17 +39,17 @@ func TestTurnWhoAnswerUpdatesFound(t *testing.T) {
 
 	game.DoTurn(question)
 
-	whiteCard := lookupCard(t, game.whoCategory, "white")
+	whiteCard := lookupCard(t, game, "white")
 	if !whiteCard.IsFound() {
 		t.Error("Game.DoTurn() Was shown a who card but didn't update the who card")
 	}
 
-	pistolCard := lookupCard(t, game.whatCategory, "pistol")
+	pistolCard := lookupCard(t, game, "pistol")
 	if pistolCard.IsFound() {
 		t.Error("Game.DoTurn() Was shown a who card but the what card was set to found")
 	}
 
-	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
+	bedroomCard := lookupCard(t, game, "bedroom")
 	if bedroomCard.IsFound() {
 		t.Error("Game.DoTurn() Was shown a who card but the where card was set to found")
 	}
@@ -69,17 +69,17 @@ func TestTurnWhatAnswerUpdatesFound(t *testing.T) {
 
 	game.DoTurn(question)
 
-	pistolCard := lookupCard(t, game.whatCategory, "pistol")
+	pistolCard := lookupCard(t, game, "pistol")
 	if !pistolCard.IsFound() {
 		t.Error("Game.DoTurn() Was shown a what card but didn't update the what card")
 	}
 
-	whiteCard := lookupCard(t, game.whoCategory, "white")
+	whiteCard := lookupCard(t, game, "white")
 	if whiteCard.IsFound() {
 		t.Error("Game.DoTurn() Was shown a what card but the who card was set to found")
 	}
 
-	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
+	bedroomCard := lookupCard(t, game, "bedroom")
 	if bedroomCard.IsFound() {
 		t.Error("Game.DoTurn() Was shown a what card but the where card was set to found")
 	}
@@ -99,17 +99,17 @@ func TestTurnWhereAnswerUpdatesFound(t *testing.T) {
 
 	game.DoTurn(question)
 
-	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
+	bedroomCard := lookupCard(t, game, "bedroom")
 	if !bedroomCard.IsFound() {
 		t.Error("Game.DoTurn() Was shown a where card but didn't update the where card")
 	}
 
-	whiteCard := lookupCard(t, game.whoCategory, "white")
+	whiteCard := lookupCard(t, game, "white")
 	if whiteCard.IsFound() {
 		t.Error("Game.DoTurn() Was shown a where card but the who card was set to found")
 	}
 
-	pistolCard := lookupCard(t, game.whatCategory, "pistol")
+	pistolCard := lookupCard(t, game, "pistol")
 	if pistolCard.IsFound() {
 		t.Error("Game.DoTurn() Was shown a where card but the what card was set to found")
 	}
@@ -129,7 +129,7 @@ func TestTurnWhoAnswerPosessor(t *testing.T) {
 
 	game.DoTurn(question)
 
-	whiteCard := lookupCard(t, game.whoCategory, "white")
+	whiteCard := lookupCard(t, game, "white")
 	if whiteCard.possessor != alice {
 		t.Error("Game.DoTurn() Was shown a who card by alice but she wasn't marked as the owner of the card.")
 	}
@@ -149,7 +149,7 @@ func TestTurnWhatAnswerPosessor(t *testing.T) {
 
 	game.DoTurn(question)
 
-	pistolCard := lookupCard(t, game.whatCategory, "pistol")
+	pistolCard := lookupCard(t, game, "pistol")
 	if pistolCard.possessor != alice {
 		t.Error("Game.DoTurn() Was shown a what card by alice but she wasn't marked as the owner of the card.")
 	}
@@ -169,7 +169,7 @@ func TestTurnWhereAnswerPosessor(t *testing.T) {
 
 	game.DoTurn(question)
 
-	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
+	bedroomCard := lookupCard(t, game, "bedroom")
 	if bedroomCard.possessor != alice {
 		t.Error("Game.DoTurn() Was shown a where card by alice but she wasn't marked as the owner of the card.")
 	}
@@ -181,7 +181,7 @@ func TestStartingHandOneCard(t *testing.T) {
 		[]*Card{NewCard("lead pipe")},
 	)
 
-	pipeCard := lookupCard(t, game.whatCategory, "lead pipe")
+	pipeCard := lookupCard(t, game, "lead pipe")
 	if !pipeCard.IsFound() {
 		t.Error("Game.AddStartingHand() Started with 1 card but it wasn't marked as found.")
 	}
@@ -199,16 +199,16 @@ func TestStartingHandMultipleCards(t *testing.T) {
 		NewCard("bathroom"),
 	})
 
-	if !lookupCard(t, game.whatCategory, "wrench").IsFound() {
+	if !lookupCard(t, game, "wrench").IsFound() {
 		t.Error("Game.AddStartingHand() Wrench card wasn't marked as found when it was in the starting hand")
 	}
-	if !lookupCard(t, game.whoCategory, "green").IsFound() {
+	if !lookupCard(t, game, "green").IsFound() {
 		t.Error("Game.AddStartingHand() Green card wasn't marked as found when it was in the starting hand")
 	}
-	if !lookupCard(t, game.whereCategory, "study").IsFound() {
+	if !lookupCard(t, game, "study").IsFound() {
 		t.Error("Game.AddStartingHand() Study card wasn't marked as found when it was in the starting hand")
 	}
-	if !lookupCard(t, game.whereCategory, "bathroom").IsFound() {
+	if !lookupCard(t, game, "bathroom").IsFound() {
 		t.Error("Game.AddStartingHand() Bathroom card wasn't marked as found when it was in the starting hand")
 	}
 }
@@ -227,15 +227,15 @@ func TestTurnNonPossessor(t *testing.T) {
 
 	game.DoTurn(question)
 
-	whoCard := lookupCard(t, game.whoCategory, "white")
+	whoCard := lookupCard(t, game, "white")
 	if !slices.Contains(whoCard.nonPossessors, alice) {
 		t.Error("Game.DoTurn() Alice couldn't answer the question but she wasn't marked as not having the person")
 	}
-	whatCard := lookupCard(t, game.whatCategory, "pistol")
+	whatCard := lookupCard(t, game, "pistol")
 	if !slices.Contains(whatCard.nonPossessors, alice) {
 		t.Error("Game.DoTurn() Alice couldn't answer the question but she wasn't marked as not having the weapon")
 	}
-	whereCard := lookupCard(t, game.whereCategory, "bedroom")
+	whereCard := lookupCard(t, game, "bedroom")
 	if !slices.Contains(whereCard.nonPossessors, alice) {
 		t.Error("Game.DoTurn() Alice couldn't answer the question but she wasn't marked as not having the location")
 	}
@@ -259,7 +259,7 @@ func TestUnkownAnswerWith2SimpleSelfKnown(t *testing.T) {
 
 	game.DoTurn(question)
 
-	whereCard := lookupCard(t, game.whereCategory, "bedroom")
+	whereCard := lookupCard(t, game, "bedroom")
 	if whereCard.possessor != alice {
 		t.Error("Game.analyseUnknownAnswer() I had 2 cards and alice showed a card when asked about them but the 3rd wasn't marked as hers.")
 	}
@@ -298,7 +298,7 @@ func TestUnkownAnswerWith2SimpleOthersKnown(t *testing.T) {
 	question.SetAnswer(UnknownAnswer)
 	game.DoTurn(question)
 
-	whereCard := lookupCard(t, game.whereCategory, "bedroom")
+	whereCard := lookupCard(t, game, "bedroom")
 	if whereCard.possessor != charlie {
 		t.Error("Game.analyseUnknownAnswer() 2 cards were in known locations and charlie showed a card when asked about them but the 3rd wasn't marked as his.")
 	}
@@ -330,7 +330,7 @@ func TestUnkownAnswerWith2KnownsAssumptions(t *testing.T) {
 	question.SetAnswer(UnknownAnswer)
 	game.DoTurn(question)
 
-	whereCard := lookupCard(t, game.whereCategory, "bedroom")
+	whereCard := lookupCard(t, game, "bedroom")
 	if whereCard.possessor == charlie {
 		t.Error("Game.analyseUnknownAnswer() 2 cards were in known locations but one was charlie's and charlie showed a card when asked about them and the 3rd was incorrectly assumed to have been shown.")
 	}
@@ -352,8 +352,8 @@ func TestUnkownAnswerWith1Known(t *testing.T) {
 	question.SetAnswer(UnknownAnswer)
 	game.DoTurn(question)
 
-	daggerCard := lookupCard(t, game.whatCategory, "dagger")
-	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
+	daggerCard := lookupCard(t, game, "dagger")
+	bedroomCard := lookupCard(t, game, "bedroom")
 
 	daggerLink := Link{
 		player: charlie,
@@ -385,9 +385,9 @@ func TestUnkownAnswerWith0Knowns(t *testing.T) {
 	question.SetAnswer(UnknownAnswer)
 	game.DoTurn(question)
 
-	greenCard := lookupCard(t, game.whoCategory, "green")
-	daggerCard := lookupCard(t, game.whatCategory, "dagger")
-	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
+	greenCard := lookupCard(t, game, "green")
+	daggerCard := lookupCard(t, game, "dagger")
+	bedroomCard := lookupCard(t, game, "bedroom")
 
 	greenLink := TriLink{
 		this:   greenCard,
@@ -445,8 +445,8 @@ func TestLinkResolutionWithFind(t *testing.T) {
 	question.SetAnswer(WhatAnswer)
 	game.DoTurn(question)
 
-	daggerCard := lookupCard(t, game.whatCategory, "dagger")
-	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
+	daggerCard := lookupCard(t, game, "dagger")
+	bedroomCard := lookupCard(t, game, "bedroom")
 
 	if !bedroomCard.IsFound() {
 		t.Error("Charlie had either the bedroom or the dagger and we know alice has the dagger but the bedroom wasn't marked as found")
@@ -497,8 +497,8 @@ func TestLinkResolutionWithoutFind(t *testing.T) {
 	question.SetAnswer(WhatAnswer)
 	game.DoTurn(question)
 
-	daggerCard := lookupCard(t, game.whatCategory, "dagger")
-	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
+	daggerCard := lookupCard(t, game, "dagger")
+	bedroomCard := lookupCard(t, game, "bedroom")
 
 	if bedroomCard.IsFound() {
 		t.Error("Charlie had either the bedroom or the dagger and we now know charlie has the dagger but the bedroom was incorrectly marked as found")
@@ -546,9 +546,9 @@ func TestTriLinkResolutionWithFind(t *testing.T) {
 	game.DoTurn(question)
 
 	//check
-	greenCard := lookupCard(t, game.whoCategory, "green")
-	daggerCard := lookupCard(t, game.whatCategory, "dagger")
-	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
+	greenCard := lookupCard(t, game, "green")
+	daggerCard := lookupCard(t, game, "dagger")
+	bedroomCard := lookupCard(t, game, "bedroom")
 
 	greenLink := Link{
 		player: charlie,
@@ -622,9 +622,9 @@ func TestTriLinkResolutionWithoutFind(t *testing.T) {
 	game.DoTurn(question)
 
 	//check
-	greenCard := lookupCard(t, game.whoCategory, "green")
-	daggerCard := lookupCard(t, game.whatCategory, "dagger")
-	bedroomCard := lookupCard(t, game.whereCategory, "bedroom")
+	greenCard := lookupCard(t, game, "green")
+	daggerCard := lookupCard(t, game, "dagger")
+	bedroomCard := lookupCard(t, game, "bedroom")
 
 	greenLink := Link{
 		player: charlie,
@@ -715,7 +715,7 @@ func TestCompletePlayer(t *testing.T) {
 	question.SetAnswer(WhereAnswer)
 	game.DoTurn(question)
 
-	candlestickCard := lookupCard(t, game.whatCategory, "candlestick")
+	candlestickCard := lookupCard(t, game, "candlestick")
 	if !slices.Contains(candlestickCard.nonPossessors, alice) {
 		t.Error("I know all of Alice's cards but other cards aren't marked as not hers")
 	}
@@ -730,12 +730,12 @@ func TestAllNonPossessorsFound(t *testing.T) {
 	for _, c := range game.whereCategory.Cards {
 		c.AddNonPossessor(alice)
 	}
-	lookupCard(t, game.whatCategory, "wrench").AddNonPossessor(alice)
-	lookupCard(t, game.whatCategory, "dagger").AddNonPossessor(alice)
+	lookupCard(t, game, "wrench").AddNonPossessor(alice)
+	lookupCard(t, game, "dagger").AddNonPossessor(alice)
 
 	game.UpdateNonPossessors()
 
-	pistolCard := lookupCard(t, game.whatCategory, "pistol")
+	pistolCard := lookupCard(t, game, "pistol")
 	if !pistolCard.IsFound() || pistolCard.possessor != alice {
 		t.Error("We know alice has 4 cards and we know she doesn't have all the cards except for 4. The pistol wasn't marked as found")
 	}
@@ -750,15 +750,15 @@ func TestAllNonPossessorsFoundWithKnowns(t *testing.T) {
 	for _, c := range game.whereCategory.Cards {
 		c.AddNonPossessor(alice)
 	}
-	lookupCard(t, game.whatCategory, "wrench").AddNonPossessor(alice)
-	lookupCard(t, game.whatCategory, "dagger").AddNonPossessor(alice)
+	lookupCard(t, game, "wrench").AddNonPossessor(alice)
+	lookupCard(t, game, "dagger").AddNonPossessor(alice)
 
-	lookupCard(t, game.whatCategory, "candlestick").SetFound(alice, true)
-	lookupCard(t, game.whatCategory, "rope").SetFound(alice, true)
+	lookupCard(t, game, "candlestick").SetFound(alice, true)
+	lookupCard(t, game, "rope").SetFound(alice, true)
 
 	game.UpdateNonPossessors()
 
-	pistolCard := lookupCard(t, game.whatCategory, "pistol")
+	pistolCard := lookupCard(t, game, "pistol")
 	if !pistolCard.IsFound() || pistolCard.possessor != alice {
 		t.Error("We know alice has 4 cards and we know she doesn't have all the cards except for 4 and has 2 cards. The pistol wasn't marked as found.")
 	}

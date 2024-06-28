@@ -71,17 +71,7 @@ func (g Game) String() string {
 	// setup
 
 	longestCardNameLen := 0
-	for _, c := range g.whoCategory.Cards {
-		if l := len(c.name); l > longestCardNameLen {
-			longestCardNameLen = l
-		}
-	}
-	for _, c := range g.whatCategory.Cards {
-		if l := len(c.name); l > longestCardNameLen {
-			longestCardNameLen = l
-		}
-	}
-	for _, c := range g.whereCategory.Cards {
+	for _, c := range g.GetAllCards() {
 		if l := len(c.name); l > longestCardNameLen {
 			longestCardNameLen = l
 		}
@@ -180,17 +170,7 @@ func (g *Game) AddStartingHand(hand []*Card) {
 
 	g.Me.cardCount = len(hand)
 
-	for _, c := range g.whoCategory.Cards {
-		if c.possessor != g.Me {
-			c.nonPossessors = append(c.nonPossessors, g.Me)
-		}
-	}
-	for _, c := range g.whatCategory.Cards {
-		if c.possessor != g.Me {
-			c.nonPossessors = append(c.nonPossessors, g.Me)
-		}
-	}
-	for _, c := range g.whereCategory.Cards {
+	for _, c := range g.GetAllCards() {
 		if c.possessor != g.Me {
 			c.nonPossessors = append(c.nonPossessors, g.Me)
 		}
