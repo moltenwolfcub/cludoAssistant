@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"slices"
+	"strconv"
 	"strings"
 )
 
@@ -94,45 +95,47 @@ func (g Game) String() string {
 	// title
 	left := int(math.Floor((float64(allColumnWidth) - 6) / 2))
 	right := int(math.Ceil((float64(allColumnWidth) - 6) / 2))
-	str := strings.Repeat("=", left) + " GAME " + strings.Repeat("=", right) + "\n"
+
+	var str = strings.Builder{}
+	str.WriteString(strings.Repeat("=", left) + " GAME " + strings.Repeat("=", right) + "\n")
 
 	// player list
-	str += playerList + "\n"
+	str.WriteString(playerList + "\n")
 
 	renderCategory := func(title string, cards []*Card) {
-		str += title + " " + strings.Repeat("=", allColumnWidth-len(title)-1) + "\n"
+		str.WriteString(title + " " + strings.Repeat("=", allColumnWidth-len(title)-1) + "\n")
 		for _, card := range cards {
-			str += fmt.Sprintf("| %s%s |", card.name, strings.Repeat(" ", columnSpacing[0]-len(card.name)))
+			fmt.Fprintf(&str, "| %"+strconv.Itoa(columnSpacing[0])+"s |", card.name)
 
 			for i, width := range columnSpacing {
 				if i == 0 {
 					continue
 				}
 
-				str += " "
+				str.WriteString(" ")
 
 				if card.possessor == g.players[i-1] {
-					str += "✓"
+					str.WriteString("✓")
 				} else if slices.Contains(card.nonPossessors, g.players[i-1]) {
-					str += "x"
+					str.WriteString("x")
 				} else {
-					str += " "
+					str.WriteString(" ")
 				}
 
-				str += strings.Repeat(" ", width)
-				str += "|"
+				str.WriteString(strings.Repeat(" ", width))
+				str.WriteString("|")
 			}
 
 			if card.IsFound() {
-				str += " "
+				str.WriteString(" ")
 				if card.possessor.name != MeIdent {
-					str += string(card.possessor.name)
+					str.WriteString(string(card.possessor.name))
 				} else {
-					str += "you"
+					str.WriteString("you")
 				}
 			}
 
-			str += "\n"
+			str.WriteString("\n")
 		}
 	}
 
@@ -140,7 +143,7 @@ func (g Game) String() string {
 	renderCategory("WHAT", g.whatCategory.Cards)
 	renderCategory("WHERE", g.whereCategory.Cards)
 
-	return str
+	return str.String()
 }
 
 func (g Game) GetAllCards() []*Card {
