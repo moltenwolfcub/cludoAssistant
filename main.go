@@ -174,6 +174,18 @@ func main() {
 		cluedo.WhatAnswer,
 	)
 
+	AskQuestion(
+		game,
+		cluedo.NewQuestion(
+			cluedo.NewCard("plum"),
+			cluedo.NewCard("wrench"),
+			cluedo.NewCard("dining room"),
+			game.Me,
+			bob,
+		),
+		cluedo.WhatAnswer,
+	)
+
 	fmt.Println(game)
 }
 

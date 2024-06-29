@@ -133,6 +133,8 @@ func (g Game) String() string {
 				} else {
 					str.WriteString("you")
 				}
+			} else if card.isMurderItem {
+				str.WriteString(" MURDER ELEMENT")
 			}
 
 			str.WriteString("\n")
@@ -175,14 +177,20 @@ func (g *Game) AddStartingHand(hand []*Card) {
 			c.nonPossessors = append(c.nonPossessors, g.Me)
 		}
 	}
+	g.Update()
+}
+
+func (g *Game) Update() {
+	g.UpdateCompleteCategories()
 	g.UpdateNonPossessors()
+	g.UpdateCompletePlayers()
 }
 
 func (g *Game) UpdateNonPossessors() {
 	allCards := g.GetAllCards()
 
 	for _, c := range allCards {
-		if !c.IsFound() {
+		if !c.IsFound() && !c.isMurderItem {
 			continue
 		}
 		for _, p := range g.players {
@@ -192,7 +200,6 @@ func (g *Game) UpdateNonPossessors() {
 			c.AddNonPossessor(p)
 		}
 	}
-	g.UpdateCompletePlayers()
 }
 
 func (g *Game) UpdateCompletePlayers() {
@@ -238,6 +245,18 @@ func (g *Game) UpdateCompletePlayers() {
 			}
 		}
 
+	}
+}
+
+func (g *Game) UpdateCompleteCategories() {
+	g.whoCategory.UpdateMurderKnowledge()
+	g.whatCategory.UpdateMurderKnowledge()
+	g.whereCategory.UpdateMurderKnowledge()
+
+	for _, c := range g.GetAllCards() {
+		if len(c.nonPossessors) == len(g.players) {
+			c.isMurderItem = true
+		}
 	}
 }
 
@@ -298,7 +317,7 @@ func (g *Game) DoTurn(question Question) {
 	case WhereAnswer:
 		g.whereCategory.FoundCard(question.wherePart, question.answerer)
 	}
-	g.UpdateNonPossessors()
+	g.Update()
 }
 
 func (g *Game) analyseUnknownAnswer(question Question) {

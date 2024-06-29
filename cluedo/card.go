@@ -24,7 +24,6 @@ func NewCard(name string) *Card {
 func (c *Card) SetFound(possessor *Player, destroyLinks bool) {
 	c.found = true
 	c.possessor = possessor
-	c.isMurderItem = false
 
 	if destroyLinks {
 		for i, l := range c.links {
@@ -175,12 +174,16 @@ func (c CardCategory) HasKnownSolution() bool {
 }
 func (c CardCategory) GetKnownSolution() *Card {
 	c.UpdateMurderKnowledge()
+	var murderCard *Card
 	for _, card := range c.Cards {
 		if card.isMurderItem {
-			return card
+			if murderCard != nil {
+				panic("Something has gone wrong. There are 2 cards from 1 category that are the solution.")
+			}
+			murderCard = card
 		}
 	}
-	return nil
+	return murderCard
 }
 
 func (c *CardCategory) FoundCard(foundCard *Card, possessor *Player) (success bool) {

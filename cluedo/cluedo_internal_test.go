@@ -733,7 +733,7 @@ func TestAllNonPossessorsFound(t *testing.T) {
 	lookupCard(t, game, "wrench").AddNonPossessor(alice)
 	lookupCard(t, game, "dagger").AddNonPossessor(alice)
 
-	game.UpdateNonPossessors()
+	game.Update()
 
 	pistolCard := lookupCard(t, game, "pistol")
 	if !pistolCard.IsFound() || pistolCard.possessor != alice {
@@ -756,10 +756,91 @@ func TestAllNonPossessorsFoundWithKnowns(t *testing.T) {
 	lookupCard(t, game, "candlestick").SetFound(alice, true)
 	lookupCard(t, game, "rope").SetFound(alice, true)
 
-	game.UpdateNonPossessors()
+	game.Update()
 
 	pistolCard := lookupCard(t, game, "pistol")
 	if !pistolCard.IsFound() || pistolCard.possessor != alice {
 		t.Error("We know alice has 4 cards and we know she doesn't have all the cards except for 4 and has 2 cards. The pistol wasn't marked as found.")
+	}
+}
+
+func TestCategoryCompleted(t *testing.T) {
+	game, alice, bob, charlie := GenSampleGame()
+	game.AddStartingHand([]*Card{
+		NewCard("plum"),
+		NewCard("scarlet"),
+	})
+
+	question := NewQuestion(
+		NewCard("green"),
+		NewCard("dagger"),
+		NewCard("bedroom"),
+		game.Me,
+		alice,
+	)
+	question.SetAnswer(WhoAnswer)
+	game.DoTurn(question)
+
+	question = NewQuestion(
+		NewCard("mustard"),
+		NewCard("dagger"),
+		NewCard("bedroom"),
+		game.Me,
+		bob,
+	)
+	question.SetAnswer(WhoAnswer)
+	game.DoTurn(question)
+
+	question = NewQuestion(
+		NewCard("peacock"),
+		NewCard("dagger"),
+		NewCard("bedroom"),
+		game.Me,
+		charlie,
+	)
+	question.SetAnswer(WhoAnswer)
+	game.DoTurn(question)
+
+	if !lookupCard(t, game, "white").isMurderItem {
+		t.Error("Found all cards in category except White but White wasn't marked as the murderer")
+	}
+}
+
+func TestCardCompleteNonPosessors(t *testing.T) {
+	game, alice, bob, charlie := GenSampleGame()
+	game.AddStartingHand([]*Card{})
+
+	question := NewQuestion(
+		NewCard("green"),
+		NewCard("dagger"),
+		NewCard("bedroom"),
+		game.Me,
+		alice,
+	)
+	question.SetAnswer(NoAnswer)
+	game.DoTurn(question)
+
+	question = NewQuestion(
+		NewCard("green"),
+		NewCard("rope"),
+		NewCard("garage"),
+		game.Me,
+		bob,
+	)
+	question.SetAnswer(NoAnswer)
+	game.DoTurn(question)
+
+	question = NewQuestion(
+		NewCard("green"),
+		NewCard("pistol"),
+		NewCard("kitchen"),
+		game.Me,
+		charlie,
+	)
+	question.SetAnswer(NoAnswer)
+	game.DoTurn(question)
+
+	if !lookupCard(t, game, "green").isMurderItem {
+		t.Error("No one has Green in their hands but Green wasn't marked as the murderer")
 	}
 }
