@@ -5,9 +5,10 @@ import "slices"
 type Card struct {
 	name string
 
-	found     bool
-	possessor *Player
+	isMurderItem bool
 
+	found         bool
+	possessor     *Player
 	nonPossessors []*Player
 
 	links    []Link
@@ -16,14 +17,14 @@ type Card struct {
 
 func NewCard(name string) *Card {
 	return &Card{
-		name:  name,
-		found: false,
+		name: name,
 	}
 }
 
 func (c *Card) SetFound(possessor *Player, destroyLinks bool) {
 	c.found = true
 	c.possessor = possessor
+	c.isMurderItem = false
 
 	if destroyLinks {
 		for i, l := range c.links {
@@ -150,20 +151,42 @@ func NewCardCategory(cards ...*Card) CardCategory {
 	}
 }
 
-func (q CardCategory) HasKnownSolution() bool {
-	var available int
-	for _, c := range q.Cards {
-		if !c.found {
-			available++
+func (c CardCategory) UpdateMurderKnowledge() {
+	foundCards := 0
+
+	var potentialMurderPart *Card
+	for _, card := range c.Cards {
+		if card.isMurderItem {
+			return
+		}
+		if card.IsFound() {
+			foundCards++
+		} else {
+			potentialMurderPart = card
 		}
 	}
-	return available == 1
+	if len(c.Cards)-foundCards == 1 {
+		potentialMurderPart.isMurderItem = true
+	}
 }
 
-func (q *CardCategory) FoundCard(card *Card, possessor *Player) (success bool) {
-	for _, c := range q.Cards {
-		if card.name == c.name {
-			c.SetFound(possessor, true)
+func (c CardCategory) HasKnownSolution() bool {
+	return c.GetKnownSolution() != nil
+}
+func (c CardCategory) GetKnownSolution() *Card {
+	c.UpdateMurderKnowledge()
+	for _, card := range c.Cards {
+		if card.isMurderItem {
+			return card
+		}
+	}
+	return nil
+}
+
+func (c *CardCategory) FoundCard(foundCard *Card, possessor *Player) (success bool) {
+	for _, card := range c.Cards {
+		if foundCard.name == card.name {
+			card.SetFound(possessor, true)
 			return true
 		}
 	}
